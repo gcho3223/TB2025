@@ -36,7 +36,7 @@ int main(int argc, char** argv) {
     TButility util = TButility();
     util.LoadMapping("../mapping/mapping_TB2025_v1.root");
 
-    TFile* fNtuple = TFile::Open((TString)("/u/user/swkim/SE_UserHome/2025_DRC_TB_PromptAnalysis/Prompt_ntuple_Run_" + std::to_string(fRunNum) + ".root"), "READ");
+    TFile* fNtuple = TFile::Open((TString)("/pnfs/knu.ac.kr/data/cms/store/user/sungwon/2025_DRC_TB_PromptAnalysis/Prompt_ntuple_Run_" + std::to_string(fRunNum) + ".root"), "READ");
     
     // Create TTreeReader
     TTreeReader reader("evt", fNtuple);

@@ -636,7 +636,7 @@ int main(int argc, char *argv[]) {
     TH2D* hist_DWC_y_corr_after = new TH2D("DWC_y_corr_after", "dwc_y_corr;DWC1_Y_mm;DWC2_Y_mm;events", 480, -120., 120., 480, -120., 120.);
 
     // Get Ntuple
-    TFile* fNtuple = TFile::Open((TString)("/u/user/swkim/SE_UserHome/2025_DRC_TB_PromptAnalysis/Prompt_ntuple_Run_" + std::to_string(fRunNum) + ".root"), "READ");
+    TFile* fNtuple = TFile::Open((TString)("/pnfs/knu.ac.kr/data/cms/store/user/sungwon/2025_DRC_TB_PromptAnalysis/Prompt_ntuple_Run_" + std::to_string(fRunNum) + ".root"), "READ");
     // Create TTreeReader
     TTreeReader reader("evt", fNtuple);
     
