@@ -9,6 +9,5 @@ fname=`basename ${1} .${ext}`
 
 echo "Compiling $fname.cc to $fname"
 g++ \
--I$INSTALL_DIR_PATH/include \
--L$INSTALL_DIR_PATH/lib $INSTALL_DIR_PATH/lib/libdrcTB.dylib $YAMLPATH/libyaml-cpp.dylib `root-config --cflags --libs` ${fname}.cc -o ${fname}
+-I$INSTALL_DIR_PATH/include -L$INSTALL_DIR_PATH/lib64 $INSTALL_DIR_PATH/lib64/libdrcTB.so `root-config --cflags --libs` ${fname}.cc -o ${fname}
 echo "Done!"
