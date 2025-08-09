@@ -20,7 +20,7 @@
 
 #include "function.h"
 
-namespace fs = std::__fs::filesystem;
+namespace fs = std::filesystem;
 
 int main(int argc, char** argv) {
 
@@ -222,10 +222,6 @@ int main(int argc, char** argv) {
     TH1F* hist_DWC2L = new TH1F("DWC2L", ";bin;ADC", 1000, 0, 1000);
     TH1F* hist_DWC2U = new TH1F("DWC2U", ";bin;ADC", 1000, 0, 1000);
     TH1F* hist_DWC2D = new TH1F("DWC2D", ";bin;ADC", 1000, 0, 1000);
-
-    // MID: 3-7: PMT modules, MID 9: LC, MID 10: Aux(CC1, CC2, PS, TC, MC), MID 12: Triggers (T1, T2, T1NIM, T2NIM, Coin), MID 14-17: MCP micro, MID 18: DWC
-    // TBread<TBwaveform> readerWave = TBread<TBwaveform>(fRunNum, fMaxEvent, fMaxFile, false, "/Volumes/Macintosh HD-1/Users/yhep/scratch/YUdaq", {3, 4, 5, 6, 7, 9, 10, 12, 18});
-    TBread<TBwaveform> readerWave = TBread<TBwaveform>(fRunNum, fMaxEvent, fMaxFile, false, "/Volumes/Macintosh HD-1/Volumes/HDD_16TB_5", {3, 4, 5, 6, 7, 9, 10, 12, 18});
 
     // Set Maximum event
     Long64_t totalEntries = reader.GetEntries();
