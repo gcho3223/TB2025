@@ -30,10 +30,6 @@ int main(int argc, char** argv) {
 
     fs::path dir("./Avg");   
     if (!(fs::exists(dir))) fs::create_directory(dir);
-
-    // initialize the utility class
-    TButility util = TButility();
-    util.LoadMapping("../mapping/mapping_TB2025_v1.root");
     
     TFile* fNtuple = TFile::Open((TString)("/pnfs/knu.ac.kr/data/cms/store/user/sungwon/2025_DRC_TB_PromptAnalysis/Prompt_ntuple_Run_" + std::to_string(fRunNum) + ".root"), "READ");
     TTreeReader reader("evt", fNtuple);
@@ -207,7 +203,7 @@ int main(int argc, char** argv) {
     TH1F* hist_LC11 = new TH1F("LC11" , ";bin;nEvents", 1000, 0, 1000);
     TH1F* hist_LC12 = new TH1F("LC12" , ";bin;nEvents", 1000, 0, 1000);
     TH1F* hist_LC13 = new TH1F("LC13" , ";bin;nEvents", 1000, 0, 1000);
-P0+r\    TH1F* hist_LC14 = new TH1F("LC14" , ";bin;nEvents", 1000, 0, 1000);
+    TH1F* hist_LC14 = new TH1F("LC14" , ";bin;nEvents", 1000, 0, 1000);
     TH1F* hist_LC15 = new TH1F("LC15" , ";bin;nEvents", 1000, 0, 1000);
     TH1F* hist_LC16 = new TH1F("LC16" , ";bin;nEvents", 1000, 0, 1000);
     TH1F* hist_LC19 = new TH1F("LC19" , ";bin;nEvents", 1000, 0, 1000);
@@ -301,7 +297,7 @@ int main(int argc, char** argv) {
             hist_M4_T4_S->Fill(bin, (float) ((*wave_M4_T4_S).at(bin)) / (float) (fMaxEvent) );
 
             hist_M5_T1_S->Fill(bin, (float) ((*wave_M5_T1_S).at(bin)) / (float) (fMaxEvent) );
-            hist_M5_T2_S->Fill(bin, (float) ((*wave_M5_T2_S).at(bin)) / (float) (fMaxP0+r\P0+r\P0+r\P0+r\Event) );
+            hist_M5_T2_S->Fill(bin, (float) ((*wave_M5_T2_S).at(bin)) / (float) (fMaxEvent) );
             hist_M5_T3_S->Fill(bin, (float) ((*wave_M5_T3_S).at(bin)) / (float) (fMaxEvent) );
             hist_M5_T4_S->Fill(bin, (float) ((*wave_M5_T4_S).at(bin)) / (float) (fMaxEvent) );
 
@@ -491,4 +487,3 @@ int main(int argc, char** argv) {
 
     outputRoot->Close();
 }
-

@@ -16,6 +16,8 @@
 #include "TF1.h"
 #include "TTreeReader.h"
 #include "TTreeReaderValue.h"
+#include "TChain.h"
+#include "TTree.h"
 
 #include "function.h"
 
@@ -63,53 +65,54 @@ int main(int argc, char *argv[]) {
     float cut_DWC = 4; // Beam geometry cut for DWC
     
     // Scaled factor for each channel
-    float scaleFactor_C = 0.715556624188507; // Using M5T1 C ch with fitting result (99.2%, 59.52 GeV)
-    float scaleFactor_S = 0.720145190562613; // Using M5T1 S ch with fitting result (99.2%, 59.52 GeV)
+    // May try using calib const from energy scan run (with angle)
+    float scaleFactor_C = 0.771505722000772; // Using M5T2 C ch with fitting result, 60GeV, not 99.2%, 59.52 GeV -> Used Calib run 12187
+    float scaleFactor_S = 0.784724038713053; // Using M5T2 S ch with fitting result, 60GeV, not 99.2%, 59.52 GeV -> Used Calib run 12187
     
-    float calib_M1_T1_C = 0.00078453;  float calib_M1_T1_S = 0.000585989;
-    float calib_M1_T2_C = 0.00084207;  float calib_M1_T2_S = 0.000568306;
-    float calib_M1_T3_C = 0.000867149; float calib_M1_T3_S = 0.000543404;
-    float calib_M1_T4_C = 0.000834991; float calib_M1_T4_S = 0.000539562;
+    float calib_M1_T1_C = 0.00149241;  float calib_M1_T1_S = 0.000735617;
+    float calib_M1_T2_C = 0.00150497;  float calib_M1_T2_S = 0.000728079;
+    float calib_M1_T3_C = 0.00153847;  float calib_M1_T3_S = 0.000762869;
+    float calib_M1_T4_C = 0.00149037;  float calib_M1_T4_S = 0.000768532;
     
-    float calib_M2_T1_C = 0.000848428; float calib_M2_T1_S = 0.000547405;
-    float calib_M2_T2_C = 0.000808373; float calib_M2_T2_S = 0.000551396;
-    float calib_M2_T3_C = 0.000868482; float calib_M2_T3_S = 0.000558809;
-    float calib_M2_T4_C = 0.000838933; float calib_M2_T4_S = 0.000557095;
+    float calib_M2_T1_C = 0.00137952; float calib_M2_T1_S = 0.000731415;
+    float calib_M2_T2_C = 0.00150163; float calib_M2_T2_S = 0.000730981;
+    float calib_M2_T3_C = 0.00140646; float calib_M2_T3_S = 0.000757598;
+    float calib_M2_T4_C = 0.00151934; float calib_M2_T4_S = 0.000790874;
     
-    float calib_M3_T1_C = 0.000810316; float calib_M3_T1_S = 0.000557539;
-    float calib_M3_T2_C = 0.000833405; float calib_M3_T2_S = 0.000543461;
-    float calib_M3_T3_C = 0.000834313; float calib_M3_T3_S = 0.000553308;
-    float calib_M3_T4_C = 0.000821823; float calib_M3_T4_S = 0.000554951;
+    float calib_M3_T1_C = 0.00144565; float calib_M3_T1_S = 0.000731814;
+    float calib_M3_T2_C = 0.00160607; float calib_M3_T2_S = 0.000755243;
+    float calib_M3_T3_C = 0.00154894; float calib_M3_T3_S = 0.000749651;
+    float calib_M3_T4_C = 0.00154072; float calib_M3_T4_S = 0.000778038;
     
-    float calib_M4_T1_C = 0.000843136; float calib_M4_T1_S = 0.00055699;
-    float calib_M4_T2_C = 0.000870497; float calib_M4_T2_S = 0.000551338;
-    float calib_M4_T3_C = 0.000854835; float calib_M4_T3_S = 0.000571568;
-    float calib_M4_T4_C = 0.0008178;   float calib_M4_T4_S = 0.000558508;
+    float calib_M4_T1_C = 0.00148084; float calib_M4_T1_S = 0.000765358;
+    float calib_M4_T2_C = 0.00124012; float calib_M4_T2_S = 0.000724073;
+    float calib_M4_T3_C = 0.00148221; float calib_M4_T3_S = 0.00074822;
+    float calib_M4_T4_C = 0.00145502; float calib_M4_T4_S = 0.000770789;
     
-    float calib_M5_T1_C = 0.00083857;  float calib_M5_T1_S = 0.000509191;
-    float calib_M5_T2_C = 0.000853283; float calib_M5_T2_S = 0.000484335;
-    float calib_M5_T3_C = 0.00120648;  float calib_M5_T3_S = 0.000815634;
-    float calib_M5_T4_C = 0.000804745; float calib_M5_T4_S = 0.000525783;
+    float calib_M5_T1_C = 0.00163589;  float calib_M5_T1_S = 0.000763008;
+    float calib_M5_T2_C = 0.00149482; float calib_M5_T2_S = 0.00070221;
+    float calib_M5_T3_C = 0.00193204;  float calib_M5_T3_S = 0.000971852;
+    float calib_M5_T4_C = 0.00142767; float calib_M5_T4_S = 0.000801621;
     
-    float calib_M6_T1_C = 0.000825544; float calib_M6_T1_S = 0.0006027;
-    float calib_M6_T2_C = 0.000824885; float calib_M6_T2_S = 0.000569894;
-    float calib_M6_T3_C = 0.000823732; float calib_M6_T3_S = 0.000580461;
-    float calib_M6_T4_C = 0.000837925; float calib_M6_T4_S = 0.000602359;
+    float calib_M6_T1_C = 0.00153832; float calib_M6_T1_S = 0.000778101;
+    float calib_M6_T2_C = 0.00141525; float calib_M6_T2_S = 0.000770506;
+    float calib_M6_T3_C = 0.00158359; float calib_M6_T3_S = 0.00078713;
+    float calib_M6_T4_C = 0.00165989; float calib_M6_T4_S = 0.000806448;
     
-    float calib_M7_T1_C = 0.000825026; float calib_M7_T1_S = 0.000508376;
-    float calib_M7_T2_C = 0.00083976;  float calib_M7_T2_S = 0.000568359;
-    float calib_M7_T3_C = 0.000861123; float calib_M7_T3_S = 0.000551702;
-    float calib_M7_T4_C = 0.000856161; float calib_M7_T4_S = 0.000560868;
+    float calib_M7_T1_C = 0.00154773; float calib_M7_T1_S = 0.000764922;
+    float calib_M7_T2_C = 0.00152003; float calib_M7_T2_S = 0.000742707;
+    float calib_M7_T3_C = 0.00154773; float calib_M7_T3_S = 0.000716665;
+    float calib_M7_T4_C = 0.00152668; float calib_M7_T4_S = 0.000776362;
     
-    float calib_M8_T1_C = 0.0008399;   float calib_M8_T1_S = 0.000559943;
-    float calib_M8_T2_C = 0.000850322; float calib_M8_T2_S = 0.000536712;
-    float calib_M8_T3_C = 0.000856512; float calib_M8_T3_S = 0.000565146;
-    float calib_M8_T4_C = 0.000826156; float calib_M8_T4_S = 0.000540112;
+    float calib_M8_T1_C = 0.001582; float calib_M8_T1_S = 0.00075973;
+    float calib_M8_T2_C = 0.0015172; float calib_M8_T2_S = 0.000727313;
+    float calib_M8_T3_C = 0.00150476; float calib_M8_T3_S = 0.000742964;
+    float calib_M8_T4_C = 0.00151895; float calib_M8_T4_S = 0.000771077;
     
-    float calib_M9_T1_C = 0.000784319; float calib_M9_T1_S = 0.000577517;
-    float calib_M9_T2_C = 0.000849001; float calib_M9_T2_S = 0.000565719;
-    float calib_M9_T3_C = 0.000835942; float calib_M9_T3_S = 0.000584969;
-    float calib_M9_T4_C = 0.000789568; float calib_M9_T4_S = 0.000599671;
+    float calib_M9_T1_C = 0.00154078; float calib_M9_T1_S = 0.000768002;
+    float calib_M9_T2_C = 0.00153682; float calib_M9_T2_S = 0.000746353;
+    float calib_M9_T3_C = 0.00152489; float calib_M9_T3_S = 0.000772763;
+    float calib_M9_T4_C = 0.00145756; float calib_M9_T4_S = 0.000795253;
 
     float calib_LC2 = 1.; // Leakage Counter 2
     float calib_LC3 = 1.; // Leakage Counter 3
@@ -130,14 +133,24 @@ int main(int argc, char *argv[]) {
     
     // setup for prompt analysis
     // it could be like
-    int fRunNum = std::stoi(argv[1]);
-    int fMaxEvent = std::stoi(argv[2]);
-    int fMaxFile = -1;
+    // int fRunNum = std::stoi(argv[1]);
+    int fMaxEvent = std::stoi(argv[1]);
+    std::vector<int> fRunNumbers;
+    for (int i = 2; i < argc; i++) {
+        fRunNumbers.push_back(std::stoi(argv[i]));
+    }
+    std::sort(fRunNumbers.begin(), fRunNumbers.end());
+    fRunNumbers.erase(std::unique(fRunNumbers.begin(), fRunNumbers.end()), fRunNumbers.end());
+    std::cout << "Run numbers: " << fRunNumbers.size() << std::endl;
+    std::string fRunNumRange = std::to_string(fRunNumbers.front()) + "-" + std::to_string(fRunNumbers.back());
+    for (int i = 0; i < fRunNumbers.size(); i++) {
+        std::cout << "Run num: " << fRunNumbers.at(i) << std::endl;
+    }
     
-    fs::path dir("./Calib_ntuple");   
+    fs::path dir("./Calib");   
     if (!(fs::exists(dir))) fs::create_directory(dir);
-            
-    TFile* f_DWC = TFile::Open((TString)("./DWC/DWC_Run_" + std::to_string(fRunNum) + ".root"), "READ");
+        
+    TFile* f_DWC = TFile::Open((TString)("./DWC/DWC_Run_" + fRunNumRange + ".root"), "READ");
     TH2D* h_DWC1_pos   = (TH2D*) f_DWC->Get("dwc1_pos");
     TH2D* h_DWC2_pos   = (TH2D*) f_DWC->Get("dwc2_pos");
     std::vector<float> DWC1_offset = getDWCoffset(h_DWC1_pos); // DWC1_offset.at(0) == X, DWC1_offset.at(1) == Y
@@ -631,10 +644,11 @@ int main(int argc, char *argv[]) {
     TH2D* hist_DWC_x_corr_after = new TH2D("DWC_x_corr_after", "dwc_x_corr;DWC1_X_mm;DWC2_X_mm;events", 480, -120., 120., 480, -120., 120.);
     TH2D* hist_DWC_y_corr_after = new TH2D("DWC_y_corr_after", "dwc_y_corr;DWC1_Y_mm;DWC2_Y_mm;events", 480, -120., 120., 480, -120., 120.);
 
-    // Get Ntuple
-    TFile* fNtuple = TFile::Open((TString)("/pnfs/knu.ac.kr/data/cms/store/user/sungwon/2025_DRC_TB_PromptAnalysis/Prompt_ntuple_Run_" + std::to_string(fRunNum) + ".root"), "READ");
-    // Create TTreeReader
-    TTreeReader reader("evt", fNtuple);
+    TChain* chain = new TChain("evt");
+    for (int i = 0; i < fRunNumbers.size(); i++) {
+        chain->Add((TString)("/pnfs/knu.ac.kr/data/cms/store/user/sungwon/2025_DRC_TB_PromptAnalysis/Prompt_ntuple_Run_" + std::to_string(fRunNumbers[i]) + ".root"));
+    }
+    TTreeReader reader(chain);
     
     // Create TTreeReaderValue for all waveform branches
     TTreeReaderValue<std::vector<short>> wave_M1_T1_C(reader, "wave_M1_T1_C"); TTreeReaderValue<std::vector<short>> wave_M1_T1_S(reader, "wave_M1_T1_S");
@@ -696,15 +710,27 @@ int main(int argc, char *argv[]) {
     TTreeReaderValue<std::vector<short>> wave_T1(reader, "wave_T1"); TTreeReaderValue<std::vector<short>> wave_T2(reader, "wave_T2"); TTreeReaderValue<std::vector<short>> wave_T1NIM(reader, "wave_T1NIM"); TTreeReaderValue<std::vector<short>> wave_T2NIM(reader, "wave_T2NIM"); TTreeReaderValue<std::vector<short>> wave_Coin(reader, "wave_Coin");
     TTreeReaderValue<std::vector<short>> wave_Coin_ref_1(reader, "wave_Coin_ref_1"); TTreeReaderValue<std::vector<short>> wave_Coin_ref_2(reader, "wave_Coin_ref_2"); TTreeReaderValue<std::vector<short>> wave_Coin_ref_3(reader, "wave_Coin_ref_3"); TTreeReaderValue<std::vector<short>> wave_Coin_ref_4(reader, "wave_Coin_ref_4");
 
+    int nEvent_count = 0;
+    int nEvent_count_DWC = 0;
+    int nEvent_count_PS = 0;
+    int nEvent_count_MC = 0;
+    int nEvent_count_DWC_and_PS = 0;
+    int nEvent_count_DWC_and_MC = 0;
+    int nEvent_count_PS_and_MC = 0;
+    int nEvent_count_DWC_and_PS_and_MC = 0;
+
     // Set Maximum event
-    Long64_t totalEntries = reader.GetEntries();
+    Long64_t totalEntries = chain->GetEntries();
     if (fMaxEvent == -1 || fMaxEvent > totalEntries)
         fMaxEvent = totalEntries;
+
+    std::cout << "totalEntries: " << totalEntries << std::endl;
+    std::cout << "fMaxEvent: " << fMaxEvent << std::endl;
     
     for (int iEvt = 0; iEvt < fMaxEvent; iEvt++) {
         printProgress(iEvt, fMaxEvent);
         // Load event using TTreeReader
-        reader.SetEntry(iEvt);
+        reader.Next();
         
         std::vector<float> intADC_M1_C; std::vector<float> intADC_M1_S;
         std::vector<float> intADC_M2_C; std::vector<float> intADC_M2_S;
@@ -872,82 +898,82 @@ int main(int argc, char *argv[]) {
         float Edep_M1T2_C = (intADC_M1_C.at(1) * calib_M1_T2_C);
         float Edep_M1T3_C = (intADC_M1_C.at(2) * calib_M1_T3_C);
         float Edep_M1T4_C = (intADC_M1_C.at(3) * calib_M1_T4_C);
-        if (Edep_M1T1_C < 0) Edep_M1T1_C = 0;
-        if (Edep_M1T2_C < 0) Edep_M1T2_C = 0;
-        if (Edep_M1T3_C < 0) Edep_M1T3_C = 0;
-        if (Edep_M1T4_C < 0) Edep_M1T4_C = 0;
+        // if (Edep_M1T1_C < 0) Edep_M1T1_C = 0;
+        // if (Edep_M1T2_C < 0) Edep_M1T2_C = 0;
+        // if (Edep_M1T3_C < 0) Edep_M1T3_C = 0;
+        // if (Edep_M1T4_C < 0) Edep_M1T4_C = 0;
         
         float Edep_M2T1_C = (intADC_M2_C.at(0) * calib_M2_T1_C);
         float Edep_M2T2_C = (intADC_M2_C.at(1) * calib_M2_T2_C);
         float Edep_M2T3_C = (intADC_M2_C.at(2) * calib_M2_T3_C);
         float Edep_M2T4_C = (intADC_M2_C.at(3) * calib_M2_T4_C);
-        if (Edep_M2T1_C < 0) Edep_M2T1_C = 0;
-        if (Edep_M2T2_C < 0) Edep_M2T2_C = 0;
-        if (Edep_M2T3_C < 0) Edep_M2T3_C = 0;
-        if (Edep_M2T4_C < 0) Edep_M2T4_C = 0;
+        // if (Edep_M2T1_C < 0) Edep_M2T1_C = 0;
+        // if (Edep_M2T2_C < 0) Edep_M2T2_C = 0;
+        // if (Edep_M2T3_C < 0) Edep_M2T3_C = 0;
+        // if (Edep_M2T4_C < 0) Edep_M2T4_C = 0;
         
         float Edep_M3T1_C = (intADC_M3_C.at(0) * calib_M3_T1_C);
         float Edep_M3T2_C = (intADC_M3_C.at(1) * calib_M3_T2_C);
         float Edep_M3T3_C = (intADC_M3_C.at(2) * calib_M3_T3_C);
         float Edep_M3T4_C = (intADC_M3_C.at(3) * calib_M3_T4_C);
-        if (Edep_M3T1_C < 0) Edep_M3T1_C = 0;
-        if (Edep_M3T2_C < 0) Edep_M3T2_C = 0;
-        if (Edep_M3T3_C < 0) Edep_M3T3_C = 0;
-        if (Edep_M3T4_C < 0) Edep_M3T4_C = 0;
+        // if (Edep_M3T1_C < 0) Edep_M3T1_C = 0;
+        // if (Edep_M3T2_C < 0) Edep_M3T2_C = 0;
+        // if (Edep_M3T3_C < 0) Edep_M3T3_C = 0;
+        // if (Edep_M3T4_C < 0) Edep_M3T4_C = 0;
         
         float Edep_M4T1_C = (intADC_M4_C.at(0) * calib_M4_T1_C);
         float Edep_M4T2_C = (intADC_M4_C.at(1) * calib_M4_T2_C);
         float Edep_M4T3_C = (intADC_M4_C.at(2) * calib_M4_T3_C);
         float Edep_M4T4_C = (intADC_M4_C.at(3) * calib_M4_T4_C);
-        if (Edep_M4T1_C < 0) Edep_M4T1_C = 0;
-        if (Edep_M4T2_C < 0) Edep_M4T2_C = 0;
-        if (Edep_M4T3_C < 0) Edep_M4T3_C = 0;
-        if (Edep_M4T4_C < 0) Edep_M4T4_C = 0;
+        // if (Edep_M4T1_C < 0) Edep_M4T1_C = 0;
+        // if (Edep_M4T2_C < 0) Edep_M4T2_C = 0;
+        // if (Edep_M4T3_C < 0) Edep_M4T3_C = 0;
+        // if (Edep_M4T4_C < 0) Edep_M4T4_C = 0;
         
         float Edep_M5T1_C = (intADC_M5_C.at(0) * calib_M5_T1_C);
         float Edep_M5T2_C = (intADC_M5_C.at(1) * calib_M5_T2_C);
         float Edep_M5T3_C = (intADC_M5_C.at(2) * calib_M5_T3_C);
         float Edep_M5T4_C = (intADC_M5_C.at(3) * calib_M5_T4_C);
-        if (Edep_M5T1_C < 0) Edep_M5T1_C = 0;
-        if (Edep_M5T2_C < 0) Edep_M5T2_C = 0;
-        if (Edep_M5T3_C < 0) Edep_M5T3_C = 0;
-        if (Edep_M5T4_C < 0) Edep_M5T4_C = 0;
+        // if (Edep_M5T1_C < 0) Edep_M5T1_C = 0;
+        // if (Edep_M5T2_C < 0) Edep_M5T2_C = 0;
+        // if (Edep_M5T3_C < 0) Edep_M5T3_C = 0;
+        // if (Edep_M5T4_C < 0) Edep_M5T4_C = 0;
         
         float Edep_M6T1_C = (intADC_M6_C.at(0) * calib_M6_T1_C);
         float Edep_M6T2_C = (intADC_M6_C.at(1) * calib_M6_T2_C);
         float Edep_M6T3_C = (intADC_M6_C.at(2) * calib_M6_T3_C);
         float Edep_M6T4_C = (intADC_M6_C.at(3) * calib_M6_T4_C);
-        if (Edep_M6T1_C < 0) Edep_M6T1_C = 0;
-        if (Edep_M6T2_C < 0) Edep_M6T2_C = 0;
-        if (Edep_M6T3_C < 0) Edep_M6T3_C = 0;
-        if (Edep_M6T4_C < 0) Edep_M6T4_C = 0;
+        // if (Edep_M6T1_C < 0) Edep_M6T1_C = 0;
+        // if (Edep_M6T2_C < 0) Edep_M6T2_C = 0;
+        // if (Edep_M6T3_C < 0) Edep_M6T3_C = 0;
+        // if (Edep_M6T4_C < 0) Edep_M6T4_C = 0;
         
         float Edep_M7T1_C = (intADC_M7_C.at(0) * calib_M7_T1_C);
         float Edep_M7T2_C = (intADC_M7_C.at(1) * calib_M7_T2_C);
         float Edep_M7T3_C = (intADC_M7_C.at(2) * calib_M7_T3_C);
         float Edep_M7T4_C = (intADC_M7_C.at(3) * calib_M7_T4_C);
-        if (Edep_M7T1_C < 0) Edep_M7T1_C = 0;
-        if (Edep_M7T2_C < 0) Edep_M7T2_C = 0;
-        if (Edep_M7T3_C < 0) Edep_M7T3_C = 0;
-        if (Edep_M7T4_C < 0) Edep_M7T4_C = 0;
+        // if (Edep_M7T1_C < 0) Edep_M7T1_C = 0;
+        // if (Edep_M7T2_C < 0) Edep_M7T2_C = 0;
+        // if (Edep_M7T3_C < 0) Edep_M7T3_C = 0;
+        // if (Edep_M7T4_C < 0) Edep_M7T4_C = 0;
         
         float Edep_M8T1_C = (intADC_M8_C.at(0) * calib_M8_T1_C);
         float Edep_M8T2_C = (intADC_M8_C.at(1) * calib_M8_T2_C);
         float Edep_M8T3_C = (intADC_M8_C.at(2) * calib_M8_T3_C);
         float Edep_M8T4_C = (intADC_M8_C.at(3) * calib_M8_T4_C);
-        if (Edep_M8T1_C < 0) Edep_M8T1_C = 0;
-        if (Edep_M8T2_C < 0) Edep_M8T2_C = 0;
-        if (Edep_M8T3_C < 0) Edep_M8T3_C = 0;
-        if (Edep_M8T4_C < 0) Edep_M8T4_C = 0;
+        // if (Edep_M8T1_C < 0) Edep_M8T1_C = 0;
+        // if (Edep_M8T2_C < 0) Edep_M8T2_C = 0;
+        // if (Edep_M8T3_C < 0) Edep_M8T3_C = 0;
+        // if (Edep_M8T4_C < 0) Edep_M8T4_C = 0;
         
         float Edep_M9T1_C = (intADC_M9_C.at(0) * calib_M9_T1_C);
         float Edep_M9T2_C = (intADC_M9_C.at(1) * calib_M9_T2_C);
         float Edep_M9T3_C = (intADC_M9_C.at(2) * calib_M9_T3_C);
         float Edep_M9T4_C = (intADC_M9_C.at(3) * calib_M9_T4_C);
-        if (Edep_M9T1_C < 0) Edep_M9T1_C = 0;
-        if (Edep_M9T2_C < 0) Edep_M9T2_C = 0;
-        if (Edep_M9T3_C < 0) Edep_M9T3_C = 0;
-        if (Edep_M9T4_C < 0) Edep_M9T4_C = 0;
+        // if (Edep_M9T1_C < 0) Edep_M9T1_C = 0;
+        // if (Edep_M9T2_C < 0) Edep_M9T2_C = 0;
+        // if (Edep_M9T3_C < 0) Edep_M9T3_C = 0;
+        // if (Edep_M9T4_C < 0) Edep_M9T4_C = 0;
         
         float Edep_M1_C = Edep_M1T1_C + Edep_M1T2_C + Edep_M1T3_C + Edep_M1T4_C;
         float Edep_M2_C = Edep_M2T1_C + Edep_M2T2_C + Edep_M2T3_C + Edep_M2T4_C;
@@ -973,82 +999,82 @@ int main(int argc, char *argv[]) {
         float Edep_M1T2_S = (intADC_M1_S.at(1) * calib_M1_T2_S);
         float Edep_M1T3_S = (intADC_M1_S.at(2) * calib_M1_T3_S);
         float Edep_M1T4_S = (intADC_M1_S.at(3) * calib_M1_T4_S);
-        if (Edep_M1T1_S < 0) Edep_M1T1_S = 0;
-        if (Edep_M1T2_S < 0) Edep_M1T2_S = 0;
-        if (Edep_M1T3_S < 0) Edep_M1T3_S = 0;
-        if (Edep_M1T4_S < 0) Edep_M1T4_S = 0;
+        // if (Edep_M1T1_S < 0) Edep_M1T1_S = 0;
+        // if (Edep_M1T2_S < 0) Edep_M1T2_S = 0;
+        // if (Edep_M1T3_S < 0) Edep_M1T3_S = 0;
+        // if (Edep_M1T4_S < 0) Edep_M1T4_S = 0;
         
         float Edep_M2T1_S = (intADC_M2_S.at(0) * calib_M2_T1_S);
         float Edep_M2T2_S = (intADC_M2_S.at(1) * calib_M2_T2_S);
         float Edep_M2T3_S = (intADC_M2_S.at(2) * calib_M2_T3_S);
         float Edep_M2T4_S = (intADC_M2_S.at(3) * calib_M2_T4_S);
-        if (Edep_M2T1_S < 0) Edep_M2T1_S = 0;
-        if (Edep_M2T2_S < 0) Edep_M2T2_S = 0;
-        if (Edep_M2T3_S < 0) Edep_M2T3_S = 0;
-        if (Edep_M2T4_S < 0) Edep_M2T4_S = 0;
+        // if (Edep_M2T1_S < 0) Edep_M2T1_S = 0;
+        // if (Edep_M2T2_S < 0) Edep_M2T2_S = 0;
+        // if (Edep_M2T3_S < 0) Edep_M2T3_S = 0;
+        // if (Edep_M2T4_S < 0) Edep_M2T4_S = 0;
         
         float Edep_M3T1_S = (intADC_M3_S.at(0) * calib_M3_T1_S);
         float Edep_M3T2_S = (intADC_M3_S.at(1) * calib_M3_T2_S);
         float Edep_M3T3_S = (intADC_M3_S.at(2) * calib_M3_T3_S);
         float Edep_M3T4_S = (intADC_M3_S.at(3) * calib_M3_T4_S);
-        if (Edep_M3T1_S < 0) Edep_M3T1_S = 0;
-        if (Edep_M3T2_S < 0) Edep_M3T2_S = 0;
-        if (Edep_M3T3_S < 0) Edep_M3T3_S = 0;
-        if (Edep_M3T4_S < 0) Edep_M3T4_S = 0;
+        // if (Edep_M3T1_S < 0) Edep_M3T1_S = 0;
+        // if (Edep_M3T2_S < 0) Edep_M3T2_S = 0;
+        // if (Edep_M3T3_S < 0) Edep_M3T3_S = 0;
+        // if (Edep_M3T4_S < 0) Edep_M3T4_S = 0;
         
         float Edep_M4T1_S = (intADC_M4_S.at(0) * calib_M4_T1_S);
         float Edep_M4T2_S = (intADC_M4_S.at(1) * calib_M4_T2_S);
         float Edep_M4T3_S = (intADC_M4_S.at(2) * calib_M4_T3_S);
         float Edep_M4T4_S = (intADC_M4_S.at(3) * calib_M4_T4_S);
-        if (Edep_M4T1_S < 0) Edep_M4T1_S = 0;
-        if (Edep_M4T2_S < 0) Edep_M4T2_S = 0;
-        if (Edep_M4T3_S < 0) Edep_M4T3_S = 0;
-        if (Edep_M4T4_S < 0) Edep_M4T4_S = 0;
+        // if (Edep_M4T1_S < 0) Edep_M4T1_S = 0;
+        // if (Edep_M4T2_S < 0) Edep_M4T2_S = 0;
+        // if (Edep_M4T3_S < 0) Edep_M4T3_S = 0;
+        // if (Edep_M4T4_S < 0) Edep_M4T4_S = 0;
         
         float Edep_M5T1_S = (intADC_M5_S.at(0) * calib_M5_T1_S);
         float Edep_M5T2_S = (intADC_M5_S.at(1) * calib_M5_T2_S);
         float Edep_M5T3_S = (intADC_M5_S.at(2) * calib_M5_T3_S);
         float Edep_M5T4_S = (intADC_M5_S.at(3) * calib_M5_T4_S);
-        if (Edep_M5T1_S < 0) Edep_M5T1_S = 0;
-        if (Edep_M5T2_S < 0) Edep_M5T2_S = 0;
-        if (Edep_M5T3_S < 0) Edep_M5T3_S = 0;
-        if (Edep_M5T4_S < 0) Edep_M5T4_S = 0;
+        // if (Edep_M5T1_S < 0) Edep_M5T1_S = 0;
+        // if (Edep_M5T2_S < 0) Edep_M5T2_S = 0;
+        // if (Edep_M5T3_S < 0) Edep_M5T3_S = 0;
+        // if (Edep_M5T4_S < 0) Edep_M5T4_S = 0;
         
         float Edep_M6T1_S = (intADC_M6_S.at(0) * calib_M6_T1_S);
         float Edep_M6T2_S = (intADC_M6_S.at(1) * calib_M6_T2_S);
         float Edep_M6T3_S = (intADC_M6_S.at(2) * calib_M6_T3_S);
         float Edep_M6T4_S = (intADC_M6_S.at(3) * calib_M6_T4_S);
-        if (Edep_M6T1_S < 0) Edep_M6T1_S = 0;
-        if (Edep_M6T2_S < 0) Edep_M6T2_S = 0;
-        if (Edep_M6T3_S < 0) Edep_M6T3_S = 0;
-        if (Edep_M6T4_S < 0) Edep_M6T4_S = 0;
+        // if (Edep_M6T1_S < 0) Edep_M6T1_S = 0;
+        // if (Edep_M6T2_S < 0) Edep_M6T2_S = 0;
+        // if (Edep_M6T3_S < 0) Edep_M6T3_S = 0;
+        // if (Edep_M6T4_S < 0) Edep_M6T4_S = 0;
         
         float Edep_M7T1_S = (intADC_M7_S.at(0) * calib_M7_T1_S);
         float Edep_M7T2_S = (intADC_M7_S.at(1) * calib_M7_T2_S);
         float Edep_M7T3_S = (intADC_M7_S.at(2) * calib_M7_T3_S);
         float Edep_M7T4_S = (intADC_M7_S.at(3) * calib_M7_T4_S);
-        if (Edep_M7T1_S < 0) Edep_M7T1_S = 0;
-        if (Edep_M7T2_S < 0) Edep_M7T2_S = 0;
-        if (Edep_M7T3_S < 0) Edep_M7T3_S = 0;
-        if (Edep_M7T4_S < 0) Edep_M7T4_S = 0;
+        // if (Edep_M7T1_S < 0) Edep_M7T1_S = 0;
+        // if (Edep_M7T2_S < 0) Edep_M7T2_S = 0;
+        // if (Edep_M7T3_S < 0) Edep_M7T3_S = 0;
+        // if (Edep_M7T4_S < 0) Edep_M7T4_S = 0;
         
         float Edep_M8T1_S = (intADC_M8_S.at(0) * calib_M8_T1_S);
         float Edep_M8T2_S = (intADC_M8_S.at(1) * calib_M8_T2_S);
         float Edep_M8T3_S = (intADC_M8_S.at(2) * calib_M8_T3_S);
         float Edep_M8T4_S = (intADC_M8_S.at(3) * calib_M8_T4_S);
-        if (Edep_M8T1_S < 0) Edep_M8T1_S = 0;
-        if (Edep_M8T2_S < 0) Edep_M8T2_S = 0;
-        if (Edep_M8T3_S < 0) Edep_M8T3_S = 0;
-        if (Edep_M8T4_S < 0) Edep_M8T4_S = 0;
+        // if (Edep_M8T1_S < 0) Edep_M8T1_S = 0;
+        // if (Edep_M8T2_S < 0) Edep_M8T2_S = 0;
+        // if (Edep_M8T3_S < 0) Edep_M8T3_S = 0;
+        // if (Edep_M8T4_S < 0) Edep_M8T4_S = 0;
         
         float Edep_M9T1_S = (intADC_M9_S.at(0) * calib_M9_T1_S);
         float Edep_M9T2_S = (intADC_M9_S.at(1) * calib_M9_T2_S);
         float Edep_M9T3_S = (intADC_M9_S.at(2) * calib_M9_T3_S);
         float Edep_M9T4_S = (intADC_M9_S.at(3) * calib_M9_T4_S);
-        if (Edep_M9T1_S < 0) Edep_M9T1_S = 0;
-        if (Edep_M9T2_S < 0) Edep_M9T2_S = 0;
-        if (Edep_M9T3_S < 0) Edep_M9T3_S = 0;
-        if (Edep_M9T4_S < 0) Edep_M9T4_S = 0;
+        // if (Edep_M9T1_S < 0) Edep_M9T1_S = 0;
+        // if (Edep_M9T2_S < 0) Edep_M9T2_S = 0;
+        // if (Edep_M9T3_S < 0) Edep_M9T3_S = 0;
+        // if (Edep_M9T4_S < 0) Edep_M9T4_S = 0;
         
         float Edep_M1_S = Edep_M1T1_S + Edep_M1T2_S + Edep_M1T3_S + Edep_M1T4_S;
         float Edep_M2_S = Edep_M2T1_S + Edep_M2T2_S + Edep_M2T3_S + Edep_M2T4_S;
@@ -1377,12 +1403,21 @@ int main(int argc, char *argv[]) {
         hist_DWC2_pos_corrected  ->Fill(DWC2_corrected_pos.at(0), DWC2_corrected_pos.at(1)); 
         hist_DWC_x_corr_corrected->Fill(DWC1_corrected_pos.at(0), DWC2_corrected_pos.at(0));
         hist_DWC_y_corr_corrected->Fill(DWC1_corrected_pos.at(1), DWC2_corrected_pos.at(1));
-        
 
         bool passDwcCorrCut = (dwcCorrelationCut(DWC1_corrected_pos, DWC2_corrected_pos, cut_DWC));
         bool passDwcBeamSpotCut = ( (std::abs(DWC1_corrected_pos.at(0)) < 5.) && (std::abs(DWC1_corrected_pos.at(1)) < 5.) && (std::abs(DWC2_corrected_pos.at(0)) < 5.) && (std::abs(DWC2_corrected_pos.at(1)) < 5.) );
         bool passPSCut = (signal_PS > cut_PS);
         bool passMCCut = (signal_MC < cut_MC);
+        
+        nEvent_count++;        
+        if (passPSCut) nEvent_count_PS++;
+        if (passMCCut) nEvent_count_MC++;
+        if ( passDwcCorrCut && passDwcBeamSpotCut ) nEvent_count_DWC++;
+        if ( passPSCut && passMCCut ) nEvent_count_PS_and_MC++;
+        if ( passDwcCorrCut && passDwcBeamSpotCut && passMCCut ) nEvent_count_DWC_and_MC++;
+        if ( passDwcCorrCut && passDwcBeamSpotCut && passPSCut ) nEvent_count_DWC_and_PS++;
+        if ( passDwcCorrCut && passDwcBeamSpotCut && passPSCut && passMCCut ) nEvent_count_DWC_and_PS_and_MC++;
+        
         // Event selection here!!
         // Require C1, C2 to have intADC larger than cut
         // if ( !((cut_CC1 < signal_CC1) && (cut_CC2 < signal_CC2)) ) continue;
@@ -1657,7 +1692,7 @@ int main(int argc, char *argv[]) {
     hist_totalEdepScaled_Comb_after->Fit("fit_reso_Comb");
     
     // Output file
-    std::string outFile = "./Calib_ntuple/Calib_Run_" + std::to_string(fRunNum) + ".root";
+    std::string outFile = "./Calib/Calib_Run_" + fRunNumRange + ".root";
     TFile* outputRoot = new TFile(outFile.c_str(), "RECREATE");
     outputRoot->cd();
     
@@ -2153,5 +2188,17 @@ int main(int argc, char *argv[]) {
     
     outputRoot->Close();
     
+    std::cout << "----------------------------------------------------------------------------------------------------------------" << std::endl;
+    std::cout << "Run numbers: " << fRunNumRange << std::endl;
+    std::cout << "Total number of events: "    << nEvent_count << std::endl;
+    std::cout << "Number of events passing DWC: " << nEvent_count_DWC << " Fraction: " << (float) nEvent_count_DWC / nEvent_count << std::endl;
+    std::cout << "Number of events passing PS:  " << nEvent_count_PS <<  " Fraction: " << (float) nEvent_count_PS / nEvent_count  << std::endl;
+    std::cout << "Number of events passing MC:  " << nEvent_count_MC <<  " Fraction: " << (float) nEvent_count_MC / nEvent_count  << std::endl;
+    std::cout << "Number of events passing PS and MC: " << nEvent_count_PS_and_MC << " Fraction: " << (float) nEvent_count_PS_and_MC / nEvent_count << std::endl;
+    std::cout << "Number of events passing DWC and PS: " << nEvent_count_DWC_and_PS << " Fraction: " << (float) nEvent_count_DWC_and_PS / nEvent_count << std::endl;
+    std::cout << "Number of events passing DWC and MC: " << nEvent_count_DWC_and_MC << " Fraction: " << (float) nEvent_count_DWC_and_MC / nEvent_count << std::endl;
+    std::cout << "Number of events passing DWC, PS and MC: " << nEvent_count_DWC_and_PS_and_MC << " Fraction: " << (float) nEvent_count_DWC_and_PS_and_MC / nEvent_count << std::endl;
+    std::cout << "----------------------------------------------------------------------------------------------------------------" << std::endl;
+
     return 0;
 }

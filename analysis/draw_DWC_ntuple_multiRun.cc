@@ -25,18 +25,29 @@
 namespace fs = std::filesystem;
 
 int main(int argc, char** argv) {
-    int fRunNum = std::stoi(argv[1]);
-    int fMaxEvent = std::stoi(argv[2]);
-    int fMaxFile  = -1;
+    // int fRunNum = std::stoi(argv[1]);
+    int fMaxEvent = std::stoi(argv[1]);
+    std::vector<int> fRunNumbers;
+    for (int i = 2; i < argc; i++) {
+        fRunNumbers.push_back(std::stoi(argv[i]));
+    }
+    std::sort(fRunNumbers.begin(), fRunNumbers.end());
+    fRunNumbers.erase(std::unique(fRunNumbers.begin(), fRunNumbers.end()), fRunNumbers.end());
+    std::cout << "Run numbers: " << fRunNumbers.size() << std::endl;
+    std::string fRunNumRange = std::to_string(fRunNumbers.front()) + "-" + std::to_string(fRunNumbers.back());
+    for (int i = 0; i < fRunNumbers.size(); i++) {
+        std::cout << "Run num: " << fRunNumbers.at(i) << std::endl;
+    }
 
     fs::path dir("./DWC");   
     if (!(fs::exists(dir))) fs::create_directory(dir);
 
-    TFile* fNtuple = TFile::Open((TString)("/pnfs/knu.ac.kr/data/cms/store/user/sungwon/2025_DRC_TB_PromptAnalysis/Prompt_ntuple_Run_" + std::to_string(fRunNum) + ".root"), "READ");
-    
-    // Create TTreeReader
-    TTreeReader reader("evt", fNtuple);
-    
+    TChain* chain = new TChain("evt");
+    for (int i = 0; i < fRunNumbers.size(); i++) {
+        chain->Add((TString)("/pnfs/knu.ac.kr/data/cms/store/user/sungwon/2025_DRC_TB_PromptAnalysis/Prompt_ntuple_Run_" + std::to_string(fRunNumbers.at(i)) + ".root"));
+    }
+    TTreeReader reader(chain);
+
     // Create TTreeReaderValue for each DWC branch
     TTreeReaderValue<std::vector<short>> wave_DWC1_R(reader, "wave_DWC1_R");
     TTreeReaderValue<std::vector<short>> wave_DWC1_L(reader, "wave_DWC1_L");
@@ -53,13 +64,13 @@ int main(int argc, char** argv) {
     TH2D* dwc_x_corr = new TH2D("dwc_x_corr", "dwc_x_corr;DWC1_X_mm;DWC2_X_mm;events", 480, -120., 120., 480, -120., 120.);
     TH2D* dwc_y_corr = new TH2D("dwc_y_corr", "dwc_y_corr;DWC1_Y_mm;DWC2_Y_mm;events", 480, -120., 120., 480, -120., 120.);
     // Set Maximum event
-    Long64_t totalEntries = reader.GetEntries();
+    Long64_t totalEntries = chain->GetEntries();
     if (fMaxEvent == -1 || fMaxEvent > totalEntries)
         fMaxEvent = totalEntries;
 
     // Start event loop using TTreeReader with for loop
     for (int iEvt = 0; iEvt < fMaxEvent; iEvt++) {
-        reader.SetEntry(iEvt);
+        reader.Next();
 
         // Get DWC 1 R, L, U, D peak timing from their waveforms
         float time_DWC1_R = getLeadingEdgeTime_interpolated800(*wave_DWC1_R, 0.4, 1, 1000);
@@ -111,7 +122,7 @@ int main(int argc, char** argv) {
     }
 
     // Saving the DWC position & correlation plots in root file in ./dwc directory.
-    std::string outFile = "./DWC/DWC_Run_" + std::to_string(fRunNum) + ".root";
+    std::string outFile = "./DWC/DWC_Run_" + fRunNumRange + ".root";
     TFile* outputRoot = new TFile(outFile.c_str(), "RECREATE");
     outputRoot->cd();
 
