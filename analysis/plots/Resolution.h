@@ -2,9 +2,9 @@
 #include "header/RunInfo.h"
 #include "header/GausFitter.h"
 
-class EMResolution {
+class Resolution {
 public:
-  EMResolution(TString inputPath, TString centerTowerTag, TString beamType): 
+  Resolution(TString inputPath, TString centerTowerTag, TString beamType): 
   inputPath_(inputPath), centerTowerTag_(centerTowerTag), beamType_(beamType) { }
 
   void Set_PlotPath(TString path) { plotPath_ = path; }
@@ -20,7 +20,7 @@ public:
         (tag_partialTower_ == "nearM9T1" && centerTowerTag_ != "M9-T1") ||
         (tag_partialTower_ == "nearM5T1" && centerTowerTag_ != "M5-T1") ||
         (tag_partialTower_ == "nearM5T3" && centerTowerTag_ != "M5-T3") ) {
-      printf("[EMResolution::Use_PartialTower] tag for partial tower is %s, but reference tower is %s!\n", tag_partialTower_.Data(), centerTowerTag_.Data());
+      printf("[Resolution::Use_PartialTower] tag for partial tower is %s, but reference tower is %s!\n", tag_partialTower_.Data(), centerTowerTag_.Data());
       throw std::invalid_argument("tower inconsistency is found");
     }
   }
@@ -56,7 +56,7 @@ private:
   // -- when partial # towers are used, not full 3x3 modules
   bool use_partialTower_ = kFALSE;
   TString tag_partialTower_ = "undefined"; // -- tag for hist. name (e.g. "nearM8T2" if the hist. = h_eDep_nearM8T2_DWCPSMC)
-  
+
   // 지정된 범위에서의 평균 계산 함수
   double CalculateRangedMean(TH1D* hist, double minRange, double maxRange)
   {
@@ -111,19 +111,19 @@ private:
         }
       }
       else {
-        throw std::invalid_argument("[EMResolution::Init] centerTowerTag_ = " + centerTowerTag_ + " is not found in merged map");
+        throw std::invalid_argument("[Resolution::Init] centerTowerTag_ = " + centerTowerTag_ + " is not found in merged map");
       }
     }
     else if( beamType_ == "pi" || beamType_ == "kaon" || beamType_ == "proton" )
     {
-      if( beamType_ == "pi" )
+      if( beamType_ == "pi" || beamType_ == "kaon" || beamType_ == "proton" )
       {
         // pi beam도 em beam과 같은 방식으로 머지된 파일 사용
         TString centerKey = centerTowerTag_;
         centerKey.ReplaceAll("-", "");  // "M5-T2" -> "M5T2"
         
-        if(TB2025::map_piBeamRun_merged.find(centerKey) != TB2025::map_piBeamRun_merged.end()) {
-          const auto& energies = TB2025::map_piBeamRun_merged[centerKey];
+        if(TB2025::map_hadronBeamRun_merged.find(centerKey) != TB2025::map_hadronBeamRun_merged.end()) {
+          const auto& energies = TB2025::map_hadronBeamRun_merged[centerKey];
           
           vec_energy_.clear();
           vec_run_.clear();
@@ -134,27 +134,20 @@ private:
           }
         }
         else {
-          throw std::invalid_argument("[EMResolution::Init] centerTowerTag_ = " + centerTowerTag_ + " is not found in pi merged map");
+          throw std::invalid_argument("[Resolution::Init] centerTowerTag_ = " + centerTowerTag_ + " is not found in pi merged map");
         }
       }
-      else if( beamType_ == "kaon" || beamType_ == "proton" )
-      {
-        // kaon/proton은 기존 방식 유지
-        vec_energy_ = TB2025::vec_hadScanE;
-        vec_run_ = TB2025::map_kpBeamRun[centerTowerTag_];
-      }
-      
       // 하드로닉 입자의 경우 기본적으로 가우시안 피팅을 하지 않도록 설정
       // 개별 채널별로 피팅 여부는 ProducePlot_PerPoint에서 처리
       if(!noFit_) NoFit(kTRUE);
     }
     else
-      throw std::invalid_argument("[EMResolution::Init] beamType_ = " + beamType_ + " is not recognized");
+      throw std::invalid_argument("[Resolution::Init] beamType_ = " + beamType_ + " is not recognized");
 
     int nPoint = (int)vec_energy_.size();
     vector<TString> vec_fiberType;
     if( beamType_ == "em" ) {vec_fiberType = {"C", "S", "Comb"};}
-    else {vec_fiberType = {"C", "S", "Comb", "S_LC_compensated", "Comb_LC_compensated", "DRcorrection", "DRcorrection_LC_compensated"};}
+    else {vec_fiberType = {"C", "S", "Comb", "S_LCcor", "S_ATTcor", "S_LCATTcor", "DRcor", "DRcor_LCcor", "DRcor_ATTcor", "DRcor_LCATTcor"};}
     
     for(auto& fiberType : vec_fiberType )
     {
@@ -176,10 +169,13 @@ private:
       // 하드론 빔인 경우에만 LC 채널 처리
       if( beamType_ == "pi" || beamType_ == "kaon" || beamType_ == "proton" )
       {
-        ProducePlot_PerPoint(i, vec_run_[i], vec_energy_[i], "S_LC_compensated");
-        ProducePlot_PerPoint(i, vec_run_[i], vec_energy_[i], "Comb_LC_compensated");
-        ProducePlot_PerPoint(i, vec_run_[i], vec_energy_[i], "DRcorrection");
-        ProducePlot_PerPoint(i, vec_run_[i], vec_energy_[i], "DRcorrection_LC_compensated");
+        ProducePlot_PerPoint(i, vec_run_[i], vec_energy_[i], "S_LCcor");
+        ProducePlot_PerPoint(i, vec_run_[i], vec_energy_[i], "S_ATTcor");
+        ProducePlot_PerPoint(i, vec_run_[i], vec_energy_[i], "S_LCATTcor");
+        ProducePlot_PerPoint(i, vec_run_[i], vec_energy_[i], "DRcor");
+        ProducePlot_PerPoint(i, vec_run_[i], vec_energy_[i], "DRcor_LCcor");
+        ProducePlot_PerPoint(i, vec_run_[i], vec_energy_[i], "DRcor_ATTcor");
+        ProducePlot_PerPoint(i, vec_run_[i], vec_energy_[i], "DRcor_LCATTcor");
       }
     }
   }
@@ -192,6 +188,8 @@ private:
     TF1* resolFunc_sum = nullptr;
     TF1* resolFunc_drc = nullptr;
     TF1* resolFunc_lc = nullptr;
+    TF1* resolFunc_att = nullptr;
+    TF1* resolFunc_lcatt = nullptr;
     
     double fitRangeMax = noNoiseReverse_ ? 130.0 : 130.0;
     
@@ -207,8 +205,10 @@ private:
       TGraphAsymmErrors* resolGraph_sum_transformed = nullptr;
       TGraphAsymmErrors* resolGraph_drc_transformed = nullptr;
       TGraphAsymmErrors* resolGraph_lc_transformed = nullptr;
+      TGraphAsymmErrors* resolGraph_att_transformed = nullptr;
+      TGraphAsymmErrors* resolGraph_lcatt_transformed = nullptr;
 
-      // pol1 피팅 함수 (20-120 GeV 범위, 1/√E: 0.091-0.223)
+      // pol1 피팅 함수 (30-110 GeV 범위, 1/√E: 0.095-0.183)
       resolFunc_C = new TF1("resolFunc_C", "pol1", 0.087, 0.224);
       resolFunc_C->SetLineColor(kBlue);
       resolFunc_C->SetBit(TF1::kNotDraw);
@@ -226,16 +226,26 @@ private:
       }
       else if( beamType_ == "pi" || beamType_ == "kaon" || beamType_ == "proton" )
       {
-        resolGraph_drc_transformed = Transform_to_InvSqrtE_GraphAsymm(map_resol_["DRcorrection"]);
-        resolGraph_lc_transformed = Transform_to_InvSqrtE_GraphAsymm(map_resol_["DRcorrection_LC_compensated"]);
+        resolGraph_drc_transformed = Transform_to_InvSqrtE_GraphAsymm(map_resol_["DRcor"]);
+        resolGraph_lc_transformed = Transform_to_InvSqrtE_GraphAsymm(map_resol_["DRcor_LCcor"]);
+        resolGraph_att_transformed = Transform_to_InvSqrtE_GraphAsymm(map_resol_["DRcor_ATTcor"]);
+        resolGraph_lcatt_transformed = Transform_to_InvSqrtE_GraphAsymm(map_resol_["DRcor_LCATTcor"]);
         
         resolFunc_drc = new TF1("resolFunc_drc", "pol1", 0.087, 0.224);
-        resolFunc_drc->SetLineColor(kMagenta);
+        resolFunc_drc->SetLineColor(kBlack);
         resolFunc_drc->SetBit(TF1::kNotDraw);
 
         resolFunc_lc = new TF1("resolFunc_lc", "pol1", 0.087, 0.224);
-        resolFunc_lc->SetLineColor(kGreen+2);
+        resolFunc_lc->SetLineColor(kBlack);
         resolFunc_lc->SetBit(TF1::kNotDraw);
+
+        resolFunc_att = new TF1("resolFunc_att", "pol1", 0.095, 0.183);
+        resolFunc_att->SetLineColor(kBlack);
+        resolFunc_att->SetBit(TF1::kNotDraw);
+
+        resolFunc_lcatt = new TF1("resolFunc_lcatt", "pol1", 0.095, 0.183);
+        resolFunc_lcatt->SetLineColor(kBlack);
+        resolFunc_lcatt->SetBit(TF1::kNotDraw);
       }
 
       // pol1 피팅 수행
@@ -249,6 +259,8 @@ private:
       {
         if(resolGraph_drc_transformed) resolGraph_drc_transformed->Fit("resolFunc_drc");
         if(resolGraph_lc_transformed) resolGraph_lc_transformed->Fit("resolFunc_lc");
+        if(resolGraph_att_transformed) resolGraph_att_transformed->Fit("resolFunc_att");
+        if(resolGraph_lcatt_transformed) resolGraph_lcatt_transformed->Fit("resolFunc_lcatt");
       }
 
       // GraphCanvas 사용
@@ -263,8 +275,10 @@ private:
       }
       else if( beamType_ == "pi" || beamType_ == "kaon" || beamType_ == "proton" )
       {
-        if(resolGraph_drc_transformed) canvas->Register(resolGraph_drc_transformed, MakeLegend_Resol_nNR("DR correcttion", resolFunc_drc), kMagenta);
-        //if(resolGraph_lc_transformed) canvas->Register(resolGraph_lc_transformed, MakeLegend_Resol_nNR("DR correction + LC", resolFunc_lc), kGreen+2);
+        //if(resolGraph_drc_transformed) canvas->Register(resolGraph_drc_transformed, MakeLegend_Resol_nNR("DR correcttion", resolFunc_drc), kBlack);
+        //if(resolGraph_lc_transformed) canvas->Register(resolGraph_lc_transformed, MakeLegend_Resol_nNR("DR correction + LC", resolFunc_lc), kBlack);
+        //if(resolGraph_att_transformed) canvas->Register(resolGraph_att_transformed, MakeLegend_Resol_nNR("DR correction + ATT", resolFunc_att), kBlack);
+        if(resolGraph_lcatt_transformed) canvas->Register(resolGraph_lcatt_transformed, MakeLegend_Resol_nNR("DR correction + LC + ATT", resolFunc_lcatt), kBlack);
       }
 
       // 축 범위 설정 (reverse 범위)
@@ -299,14 +313,22 @@ private:
         reversed_fitFunc_sum->Draw("L RX & sames");
       }
       if( beamType_ == "pi" || beamType_ == "kaon" || beamType_ == "proton" )
-      {
+      { // draw fitting function on canvas?
         if(resolFunc_drc) {
           TGraph* reversed_fitFunc_drc = DrawFitReverse_TGraph(resolFunc_drc);
-          reversed_fitFunc_drc->Draw("L RX & sames");
+          //reversed_fitFunc_drc->Draw("L RX & sames");
         }
         if(resolFunc_lc) {
           TGraph* reversed_fitFunc_lc = DrawFitReverse_TGraph(resolFunc_lc);
           //reversed_fitFunc_lc->Draw("L RX & sames");
+        }
+        if(resolFunc_att) {
+          TGraph* reversed_fitFunc_att = DrawFitReverse_TGraph(resolFunc_att);
+          //reversed_fitFunc_att->Draw("L RX & sames");
+        }
+        if(resolFunc_lcatt) {
+          TGraph* reversed_fitFunc_lcatt = DrawFitReverse_TGraph(resolFunc_lcatt);
+          reversed_fitFunc_lcatt->Draw("L RX & sames");
         }
       }
       canvas->c_->Update();
@@ -316,7 +338,7 @@ private:
       canvas->c_->SaveAs(savePath);
       
       return; // NoNoise + Reverse 모드에서는 여기서 함수 종료
-    }
+    } // end no noise term!
     else
     {
       // 기본 옵션: 3-term 함수 사용
@@ -360,7 +382,7 @@ private:
         resolFunc_drc->SetParLimits(0, 0., 15.);    //noise term limit
         resolFunc_drc->SetParLimits(1, 0., 15.);    //stochastic term limit
         resolFunc_drc->SetParLimits(2, 0., 15.); // constant term limit
-        resolFunc_drc->SetLineColor(kMagenta);
+        resolFunc_drc->SetLineColor(kBlack);
 
         resolFunc_lc = new TF1("resolFunc_lc", fit_noiseterm, 10, fitRangeMax);
         resolFunc_lc->SetParameter(0, 1.0);         //noise term
@@ -369,32 +391,55 @@ private:
         resolFunc_lc->SetParLimits(0, 0., 15.);     //noise term limit
         resolFunc_lc->SetParLimits(1, 0., 15.);     //stochastic term limit
         resolFunc_lc->SetParLimits(2, 0., 15.);  // constant term limit
-        resolFunc_lc->SetLineColor(kGreen+2);
+        resolFunc_lc->SetLineColor(kBlack);
+
+        resolFunc_att = new TF1("resolFunc_att", fit_noiseterm, 10, fitRangeMax);
+        resolFunc_att->SetParameter(0, 1.0);         //noise term
+        resolFunc_att->SetParameter(1, 0.2);         //stochastic term
+        resolFunc_att->SetParameter(2, 0.01);     //constant term
+        resolFunc_att->SetParLimits(0, 0., 15.);     //noise term limit
+        resolFunc_att->SetParLimits(1, 0., 15.);     //stochastic term limit
+        resolFunc_att->SetParLimits(2, 0., 15.);  // constant term limit
+        resolFunc_att->SetLineColor(kBlack);
+
+        resolFunc_lcatt = new TF1("resolFunc_lcatt", fit_noiseterm, 10, fitRangeMax);
+        resolFunc_lcatt->SetParameter(0, 1.0);         //noise term
+        resolFunc_lcatt->SetParameter(1, 0.2);         //stochastic term
+        resolFunc_lcatt->SetParameter(2, 0.01);     //constant term
+        resolFunc_lcatt->SetParLimits(0, 0., 15.);     //noise term limit
+        resolFunc_lcatt->SetParLimits(1, 0., 15.);     //stochastic term limit
+        resolFunc_lcatt->SetParLimits(2, 0., 15.);  // constant term limit
+        resolFunc_lcatt->SetLineColor(kBlack);
       }
 
       // 모든 채널에 대해 피팅 수행
       map_resol_["C"]->Fit("resolFunc_C", "", "", 10, fitRangeMax);
       map_resol_["S"]->Fit("resolFunc_S", "", "", 10, fitRangeMax);
       map_resol_["Comb"]->Fit("resolFunc_sum", "", "", 10, fitRangeMax);
-      // 하드론 빔인 경우에만 LC 채널 피팅
+      // 하드론 빔
       if( beamType_ == "pi" || beamType_ == "kaon" || beamType_ == "proton" )
       {
-        if(resolFunc_drc) map_resol_["DRcorrection"]->Fit("resolFunc_drc");
-        if(resolFunc_lc) map_resol_["DRcorrection_LC_compensated"]->Fit("resolFunc_lc");
+        if(resolFunc_drc)   map_resol_["DRcor"]->Fit("resolFunc_drc");
+        if(resolFunc_lc)    map_resol_["DRcor_LCcor"]->Fit("resolFunc_lc");
+        if(resolFunc_att)   map_resol_["DRcor_ATTcor"]->Fit("resolFunc_att");
+        if(resolFunc_lcatt) map_resol_["DRcor_LCATTcor"]->Fit("resolFunc_lcatt");
       }
 
       PlotTool::GraphCanvas* canvas = new PlotTool::GraphCanvas(canvasName, 0, 0);
       canvas->SetTitle("E [GeV]", "#sigma/E");
 
-      canvas->Register(map_resol_["C"],   MakeLegend_Resol("C",   resolFunc_C),   kBlue);
-      canvas->Register(map_resol_["S"],   MakeLegend_Resol("S",   resolFunc_S),   kRed);
-      
-      if( beamType_ == "pi" || beamType_ == "kaon" || beamType_ == "proton" )
+      canvas->Register(map_resol_["C"], MakeLegend_Resol("C",   resolFunc_C),   kBlue);
+      canvas->Register(map_resol_["S"], MakeLegend_Resol("S",   resolFunc_S),   kRed);
+
+      // draw fitting function on canvas?
+      if(beamType_ == "em") {canvas->Register(map_resol_["Comb"], MakeLegend_Resol("Comb", resolFunc_sum), kBlack);} 
+      else if( beamType_ == "pi" || beamType_ == "kaon" || beamType_ == "proton" )
       {
-        if(resolFunc_drc) canvas->Register(map_resol_["DRcorrection"], MakeLegend_Resol("DR correction", resolFunc_drc), kMagenta);
-        //if(resolFunc_lc) canvas->Register(map_resol_["DRcorrection_LC_compensated"], MakeLegend_Resol("DR correction + LC", resolFunc_lc), kGreen+2);
+        //canvas->Register(map_resol_["DRcor"], MakeLegend_Resol("DR correction", resolFunc_drc), kBlack);
+        //canvas->Register(map_resol_["DRcor_LCcor"], MakeLegend_Resol("DR correction + LC", resolFunc_lc), kBlack);
+        //canvas->Register(map_resol_["DRcor_ATTcor"], MakeLegend_Resol("DR correction + ATT", resolFunc_att), kBlack);
+        canvas->Register(map_resol_["DRcor_LCATTcor"], MakeLegend_Resol("DR correction + LC + ATT", resolFunc_lcatt), kBlack);
       }
-      else {canvas->Register(map_resol_["Comb"], MakeLegend_Resol("Comb", resolFunc_sum), kBlack);}
 
       // 기본 모드 축 범위 설정
       if( beamType_ == "em" ) canvas->SetRangeY(0, 0.4);
@@ -406,9 +451,9 @@ private:
 
       canvas->RegisterLatex(0.14, 0.96, 62, 0.8, "TB2025");
       TString beamInfo;
-      if(beamType_ == "em") {beamInfo = "e+ beam (6 - 120 GeV)";}
-      else if(beamType_ == "pi") {beamInfo = "#pi^{+} beam (20 - 120 GeV)";}
-      else if(beamType_ == "kaon") {beamInfo = "#K^{+} beam (20 - 120 GeV)";}
+      if(beamType_ == "em")          {beamInfo = "e+ beam (6 - 120 GeV)";}
+      else if(beamType_ == "pi")     {beamInfo = "#pi^{+} beam (20 - 120 GeV)";}
+      else if(beamType_ == "kaon")   {beamInfo = "#K^{+} beam (20 - 120 GeV)";}
       else if(beamType_ == "proton") {beamInfo = "proton beam (20 - 120 GeV)";}
       canvas->RegisterLatex(0.65, 0.96, 62, 0.6, beamInfo);
 
@@ -422,11 +467,13 @@ private:
       canvas->c_->cd();
       if(resolFunc_C) resolFunc_C->Draw("SAME");
       if(resolFunc_S) resolFunc_S->Draw("SAME");
-      if(resolFunc_sum) resolFunc_sum->Draw("SAME");
-      if( beamType_ == "pi" || beamType_ == "kaon" || beamType_ == "proton" )
+      if(beamType_ == "em") {if(resolFunc_sum) resolFunc_sum->Draw("SAME");}
+      else if( beamType_ == "pi" || beamType_ == "kaon" || beamType_ == "proton" )
       {
-        if(resolFunc_drc) resolFunc_drc->Draw("SAME");
-        if(resolFunc_lc) resolFunc_lc->Draw("SAME");
+        //if(resolFunc_drc) resolFunc_drc->Draw("SAME");
+        //if(resolFunc_lc) resolFunc_lc->Draw("SAME");
+        //if(resolFunc_att) resolFunc_att->Draw("SAME");
+        if(resolFunc_lcatt) resolFunc_lcatt->Draw("SAME");
       }
       canvas->c_->Update();
       
@@ -564,8 +611,10 @@ private:
     }
     else if( beamType_ == "pi" || beamType_ == "kaon" || beamType_ == "proton" )
     {
-      canvas->Register(map_linearity_["DRcorrection"], "DR correction", kMagenta);
-      canvas->Register(map_linearity_["DRcorrection_LC_compensated"], "DR correction + LC", kGreen+2);
+      //canvas->Register(map_linearity_["DRcor"], "DR correction", kMagenta);
+      //canvas->Register(map_linearity_["DRcor_LCcor"], "DR correction + LC", kGreen+2);
+      //canvas->Register(map_linearity_["DRcor_ATTcor"], "DR correction + ATT", kOrange);
+      canvas->Register(map_linearity_["DRcor_LCATTcor"], "DR correction + LC + ATT", kBlack);
     }
     
     // canvas->SetMarkerSize(2.0);
@@ -580,9 +629,9 @@ private:
     // canvas->Latex_CMSInternal();
     canvas->RegisterLatex(0.14, 0.96, 62, 0.8, "TB2025");
     TString beamInfo;
-    if(beamType_ == "em") {beamInfo = "e+ beam (6 - 120 GeV)";}
-    else if(beamType_ == "pi") {beamInfo = "#pi^{+} beam (40 - 120 GeV)";}
-    else if(beamType_ == "kaon") {beamInfo = "#K^{+} beam (40 - 100 GeV)";}
+    if(beamType_ == "em")          {beamInfo = "e+ beam (6 - 120 GeV)";}
+    else if(beamType_ == "pi")     {beamInfo = "#pi^{+} beam (40 - 120 GeV)";}
+    else if(beamType_ == "kaon")   {beamInfo = "#K^{+} beam (40 - 100 GeV)";}
     else if(beamType_ == "proton") {beamInfo = "proton beam (40 - 100 GeV)";}
     canvas->RegisterLatex(0.65, 0.96, 62, 0.6, beamInfo);
 
@@ -596,7 +645,8 @@ private:
     
   }
 
-  void ProducePlot_PerPoint(int i_point, int run, double energy, TString fiberType) {
+  void ProducePlot_PerPoint(int i_point, int run, double energy, TString fiberType)
+  {
     // 히스토그램 이름 설정 (evtloop_emDRC.cc와 HistogramManager.h 참고)
     TString histName = "";
     if (beamType_ == "em") {
@@ -607,14 +657,16 @@ private:
     else if(beamType_ == "pi" || beamType_ == "kaon" || beamType_ == "proton")
     {
       // 하드론 빔의 경우 다른 히스토그램 이름들 사용 (추후 구현)
-      if (fiberType == "Comb") histName = "totalEdepScaled_Comb_6_MC";      // Combined (C+S) channel, scaled, final cuts
-      else if (fiberType == "C") histName = "totalEdepScaled_C_6_MC";      // C channel, scaled, final cuts
-      else if (fiberType == "S") histName = "totalEdepScaled_S_6_MC";      // S channel, scaled, final cuts
-      else if(fiberType == "DRcorrection")          histName = "totalEdepScaled_Comb_DRCorrection_6_MC";
-      else if(fiberType == "DRcorrection_LC_compensated") histName = "totalEdepScaled_Comb_DRCorrection_LC_compensated_6_MC";
-      else if(fiberType == "S_LC_compensated")            histName = "totalEdepScaled_S_LC_compensated_6_MC";
-      else if(fiberType == "Comb_LC_compensated")              histName = "totalEdepScaled_Comb_LC_compensated_6_MC";
-      else                                     histName = TString::Format("totalEdepScaled_%s_6_MC", fiberType.Data());
+      if(fiberType == "C")                    histName = "Total_Edep_SF_C_6_MC";
+      else if(fiberType == "S")               histName = "Total_Edep_SF_S_6_MC";
+      else if(fiberType == "S_LCcor")         histName = "Total_Edep_SF_S_LCcor_6_MC";
+      else if(fiberType == "S_ATTcor")        histName = "Total_Edep_SF_S_ATTcor_6_MC";
+      else if(fiberType == "S_LCATTcor")      histName = "Total_Edep_SF_S_LCATTcor_6_MC";
+      else if(fiberType == "DRcor")           histName = "Total_Edep_SF_DRcor_6_MC";
+      else if(fiberType == "DRcor_LCcor")     histName = "Total_Edep_SF_DRcor_LCcor_6_MC";
+      else if(fiberType == "DRcor_ATTcor")    histName = "Total_Edep_SF_DRcor_ATTcor_6_MC";
+      else if(fiberType == "DRcor_LCATTcor")  histName = "Total_Edep_SF_DRcor_LCATTcor_6_MC";
+      else                                    histName = TString::Format("Total_Edep_SF_%s_6_MC", fiberType.Data());
     }
 
     // Partial tower 기능은 현재 evtloop_emDRC.cc에서 지원하지 않음
@@ -622,7 +674,7 @@ private:
     //   histName.ReplaceAll("eDep_all", "eDep_"+tag_partialTower_);
 
     // Merged 파일에서 히스토그램 가져오기
-    TString fileName = Get_FileName(energy);
+    TString fileName = Get_FileName(inputPath_, energy);
     TH1D* h_eDep_combined = PlotTool::Get_Hist(fileName, histName);
     double totalEvents = h_eDep_combined->Integral();
     
@@ -639,13 +691,15 @@ private:
       {
         if(fiberType == "C")
         {
-          minRange = TB2025::map_pi_ReRange_C[TString::Format("%d", (int)energy)].first; maxRange = TB2025::map_pi_ReRange_C[TString::Format("%d", (int)energy)].second;
+          minRange = TB2025::map_pi_ReRange_C[TString::Format("%d", (int)energy)];
+          maxRange = h_eDep_combined->GetXaxis()->GetXmax();
           rangedMean = CalculateRangedMean(h_eDep_combined, minRange, maxRange); rangedStdDev = CalculateRangedStdDev(h_eDep_combined, minRange, maxRange, rangedMean);
           mean = rangedMean; stdDev = rangedStdDev; resol = rangedStdDev / rangedMean;
         }
         else if(fiberType == "S")
         {
-          minRange = TB2025::map_pi_ReRange_S[TString::Format("%d", (int)energy)].first; maxRange = TB2025::map_pi_ReRange_S[TString::Format("%d", (int)energy)].second;
+          minRange = TB2025::map_pi_ReRange_S[TString::Format("%d", (int)energy)];
+          maxRange = h_eDep_combined->GetXaxis()->GetXmax();
           rangedMean = CalculateRangedMean(h_eDep_combined, minRange, maxRange); rangedStdDev = CalculateRangedStdDev(h_eDep_combined, minRange, maxRange, rangedMean);
           mean = rangedMean; stdDev = rangedStdDev; resol = rangedStdDev / rangedMean;
         }
@@ -654,13 +708,15 @@ private:
       {
         if(fiberType == "C")
         {
-          minRange = TB2025::map_pi_ReRange_C[TString::Format("%d", (int)energy)].first; maxRange = TB2025::map_pi_ReRange_C[TString::Format("%d", (int)energy)].second;
+          minRange = TB2025::map_pi_ReRange_C[TString::Format("%d", (int)energy)];
+          maxRange = h_eDep_combined->GetXaxis()->GetXmax();
           rangedMean = CalculateRangedMean(h_eDep_combined, minRange, maxRange); rangedStdDev = CalculateRangedStdDev(h_eDep_combined, minRange, maxRange, rangedMean);
           mean = rangedMean; stdDev = rangedStdDev; resol = rangedStdDev / rangedMean;
         }
         else if(fiberType == "S")
         {
-          minRange = TB2025::map_pi_ReRange_S[TString::Format("%d", (int)energy)].first; maxRange = TB2025::map_pi_ReRange_S[TString::Format("%d", (int)energy)].second;
+          minRange = TB2025::map_pi_ReRange_S[TString::Format("%d", (int)energy)];
+          maxRange = h_eDep_combined->GetXaxis()->GetXmax();
           rangedMean = CalculateRangedMean(h_eDep_combined, minRange, maxRange); rangedStdDev = CalculateRangedStdDev(h_eDep_combined, minRange, maxRange, rangedMean);
           mean = rangedMean; stdDev = rangedStdDev; resol = rangedStdDev / rangedMean;
         }
@@ -669,13 +725,15 @@ private:
       {
         if(fiberType == "C")
         {
-          minRange = TB2025::map_pi_ReRange_C[TString::Format("%d", (int)energy)].first; maxRange = TB2025::map_pi_ReRange_C[TString::Format("%d", (int)energy)].second;
+          minRange = TB2025::map_pi_ReRange_C[TString::Format("%d", (int)energy)];
+          maxRange = h_eDep_combined->GetXaxis()->GetXmax();
           rangedMean = CalculateRangedMean(h_eDep_combined, minRange, maxRange); rangedStdDev = CalculateRangedStdDev(h_eDep_combined, minRange, maxRange, rangedMean);
           mean = rangedMean; stdDev = rangedStdDev; resol = rangedStdDev / rangedMean;
         }
         else if(fiberType == "S")
         {
-          minRange = TB2025::map_pi_ReRange_S[TString::Format("%d", (int)energy)].first; maxRange = TB2025::map_pi_ReRange_S[TString::Format("%d", (int)energy)].second;
+          minRange = TB2025::map_pi_ReRange_S[TString::Format("%d", (int)energy)];
+          maxRange = h_eDep_combined->GetXaxis()->GetXmax();
           rangedMean = CalculateRangedMean(h_eDep_combined, minRange, maxRange); rangedStdDev = CalculateRangedStdDev(h_eDep_combined, minRange, maxRange, rangedMean);
           mean = rangedMean; stdDev = rangedStdDev; resol = rangedStdDev / rangedMean;
         }
@@ -684,13 +742,15 @@ private:
       {
         if(fiberType == "C")
         {
-          minRange = TB2025::map_pi_ReRange_C[TString::Format("%d", (int)energy)].first; maxRange = TB2025::map_pi_ReRange_C[TString::Format("%d", (int)energy)].second;
+          minRange = TB2025::map_pi_ReRange_C[TString::Format("%d", (int)energy)];
+          maxRange = h_eDep_combined->GetXaxis()->GetXmax();
           rangedMean = CalculateRangedMean(h_eDep_combined, minRange, maxRange); rangedStdDev = CalculateRangedStdDev(h_eDep_combined, minRange, maxRange, rangedMean);
           mean = rangedMean; stdDev = rangedStdDev; resol = rangedStdDev / rangedMean;
         }
         else if(fiberType == "S")
         {
-          minRange = TB2025::map_pi_ReRange_S[TString::Format("%d", (int)energy)].first; maxRange = TB2025::map_pi_ReRange_S[TString::Format("%d", (int)energy)].second;
+          minRange = TB2025::map_pi_ReRange_S[TString::Format("%d", (int)energy)];
+          maxRange = h_eDep_combined->GetXaxis()->GetXmax();
           rangedMean = CalculateRangedMean(h_eDep_combined, minRange, maxRange); rangedStdDev = CalculateRangedStdDev(h_eDep_combined, minRange, maxRange, rangedMean);
           mean = rangedMean; stdDev = rangedStdDev; resol = rangedStdDev / rangedMean;
         }
@@ -699,13 +759,15 @@ private:
       {
         if(fiberType == "C")
         {
-          minRange = TB2025::map_pi_ReRange_C[TString::Format("%d", (int)energy)].first; maxRange = TB2025::map_pi_ReRange_C[TString::Format("%d", (int)energy)].second;
+          minRange = TB2025::map_pi_ReRange_C[TString::Format("%d", (int)energy)];
+          maxRange = h_eDep_combined->GetXaxis()->GetXmax();
           rangedMean = CalculateRangedMean(h_eDep_combined, minRange, maxRange); rangedStdDev = CalculateRangedStdDev(h_eDep_combined, minRange, maxRange, rangedMean);
           mean = rangedMean; stdDev = rangedStdDev; resol = rangedStdDev / rangedMean;
         }
         else if(fiberType == "S")
         {
-          minRange = TB2025::map_pi_ReRange_S[TString::Format("%d", (int)energy)].first; maxRange = TB2025::map_pi_ReRange_S[TString::Format("%d", (int)energy)].second;
+          minRange = TB2025::map_pi_ReRange_S[TString::Format("%d", (int)energy)];
+          maxRange = h_eDep_combined->GetXaxis()->GetXmax();
           rangedMean = CalculateRangedMean(h_eDep_combined, minRange, maxRange); rangedStdDev = CalculateRangedStdDev(h_eDep_combined, minRange, maxRange, rangedMean);
           mean = rangedMean; stdDev = rangedStdDev; resol = rangedStdDev / rangedMean;
         }
@@ -714,13 +776,15 @@ private:
       {
         if(fiberType == "C")
         {
-          minRange = TB2025::map_pi_ReRange_C[TString::Format("%d", (int)energy)].first; maxRange = TB2025::map_pi_ReRange_C[TString::Format("%d", (int)energy)].second;
+          minRange = TB2025::map_pi_ReRange_C[TString::Format("%d", (int)energy)];
+          maxRange = h_eDep_combined->GetXaxis()->GetXmax();
           rangedMean = CalculateRangedMean(h_eDep_combined, minRange, maxRange); rangedStdDev = CalculateRangedStdDev(h_eDep_combined, minRange, maxRange, rangedMean);
           mean = rangedMean; stdDev = rangedStdDev; resol = rangedStdDev / rangedMean;
         }
         else if(fiberType == "S")
         {
-          minRange = TB2025::map_pi_ReRange_S[TString::Format("%d", (int)energy)].first; maxRange = TB2025::map_pi_ReRange_S[TString::Format("%d", (int)energy)].second;
+          minRange = TB2025::map_pi_ReRange_S[TString::Format("%d", (int)energy)];
+          maxRange = h_eDep_combined->GetXaxis()->GetXmax();
           rangedMean = CalculateRangedMean(h_eDep_combined, minRange, maxRange); rangedStdDev = CalculateRangedStdDev(h_eDep_combined, minRange, maxRange, rangedMean);
           mean = rangedMean; stdDev = rangedStdDev; resol = rangedStdDev / rangedMean;
         }
@@ -736,13 +800,12 @@ private:
     bool doFit = false;
     // EM 입자인 경우와 하드로닉 입자에서 DR Corrected, LC 채널인 경우에만 피팅 수행
     if(beamType_ == "em" && !noFit_) {doFit = true;}
-    else if((beamType_ == "pi" || beamType_ == "kaon" || beamType_ == "proton") && (fiberType == "DRcorrection" || fiberType == "DRcorrection_LC_compensated"))
+    else if((beamType_ == "pi" || beamType_ == "kaon" || beamType_ == "proton") &&
+            (fiberType == "DRcor" || fiberType == "DRcor_LCcor" || fiberType == "DRcor_ATTcor" || fiberType == "DRcor_LCATTcor"))
     {doFit = true;}
     
     // 히스토그램이 비어있으면 피팅 건너뛰기
-    if(doFit && h_eDep_combined->GetEntries() == 0) {
-      doFit = false;
-    }
+    if(doFit && h_eDep_combined->GetEntries() == 0) {doFit = false;}
     
     if(doFit)
     {
@@ -751,7 +814,8 @@ private:
     }
 
     // NoNoise 옵션인 경우 플롯 저장 생략, 데이터만 처리
-    if(noNoiseReverse_) {
+    if(noNoiseReverse_)
+    {
       // 데이터 처리만 수행 (그래프 채우기)
       if(!doFit) Fill_TGraph(fiberType, i_point, energy, mean, absUnc_mean, resol, absUnc_resol);
       else       Fill_TGraph(fiberType, i_point, energy, fitter.Get("mu"), fitter.GetUnc("mu"), fitter.Get("resol"), fitter.GetUnc("resol"));
@@ -768,11 +832,13 @@ private:
     canvas->SetTitle("Energy deposit [GeV]", "# events");
 
     int color;
-    if( fiberType == "C" ) color = kBlue;
-    if( fiberType == "S" ) color = kRed;
-    if( fiberType == "Comb" ) color = kBlack;
-    if( fiberType == "DRcorrection" ) color = kMagenta;
-    if( fiberType == "DRcorrection_LC_compensated" ) color = kGreen+2;
+    if( fiberType == "C" )              color = kBlue;
+    if( fiberType == "S" )              color = kRed;
+    if( fiberType == "Comb" )           color = kBlack;
+    if( fiberType == "DRcor" )          color = kMagenta;
+    if( fiberType == "DRcor_LCcor" )    color = kMagenta;
+    if( fiberType == "DRcor_ATTcor" )   color = kMagenta;
+    if( fiberType == "DRcor_LCATTcor" ) color = kMagenta;
 
     canvas->Register(h_eDep_combined, "", color);
 
@@ -838,7 +904,7 @@ private:
     canvas->Draw("hist");
 
     // DRCorrection 관련 채널에서 피팅이 수행된 경우 피팅 함수를 히스토그램 위에 그리기
-    if(doFit && (fiberType == "DRcorrection" || fiberType == "DRcorrection_LC_compensated")) {
+    if(doFit && (fiberType == "DRcor" || fiberType == "DRcor_LCcor" || fiberType == "DRcor_ATTcor" || fiberType == "DRcor_LCATTcor")) {
       canvas->c_->cd();
       
       TF1* fitFunc = fitter.GetFunction();
@@ -882,7 +948,7 @@ private:
     map_linearity_[fiberType]->SetPointError(i_point, 0, 0, unc_linearity, unc_linearity);
   }
 
-  TString Get_FileName(double energy) { 
+  TString Get_FileName(TString inputpath, double energy) { 
     // Merged 디렉토리의 파일 경로 구성
     // ../../Guk/output/em/merged/em_M5T2_120GeV.root 형식
     
@@ -890,7 +956,7 @@ private:
     TString centerStr = centerTowerTag_;
     centerStr.ReplaceAll("-", "");
     
-    return TString::Format("../output/%s/merged/%s_%s_%.0lfGeV.root", beamType_.Data(), beamType_.Data(), centerStr.Data(), energy);
+    return TString::Format("%s/merged/%s_%s_%.0lfGeV.root", inputpath.Data(), beamType_.Data(), centerStr.Data(), energy);
     //return TString::Format("../output/pi/pi_M5T2_12352.root");
   }
 
