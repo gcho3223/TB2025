@@ -29,7 +29,7 @@ namespace fs = std::filesystem;
 int main(int argc, char *argv[])
 {
     if (argc != 7) {
-        std::cerr << "Usage: " << argv[0] << " <run_number/energy> <max_event> <module> [beam_type] [rotation_on|rotation_off] [interaction_on|interaction_off]" << std::endl;
+        std::cerr << "Usage: " << argv[0] << " <run_number> <max_event> <module> [beam_type] [rotation_on|rotation_off] [interaction_on|interaction_off]" << std::endl;
         std::cerr << "- module number is center module number: 5 (M5T2) or 4 (M4T2)" << std::endl;
         std::cerr << "- beam_type: em, pi, kaon, proton" << std::endl;
         return -1;

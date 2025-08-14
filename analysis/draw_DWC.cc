@@ -26,7 +26,7 @@ namespace fs = std::filesystem;
 
 int main(int argc, char** argv) {
     if (argc != 4) {
-        std::cerr << "Usage: " << argv[0] << " <run_number/energy> <max_event> <beam_type>" << std::endl;
+        std::cerr << "Usage: " << argv[0] << " <run_number> <max_event> <beam_type>" << std::endl;
         std::cerr << "- beam_type: em, pi, kp(kaon, proton)" << std::endl;
         return -1;
     }
