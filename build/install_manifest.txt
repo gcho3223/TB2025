@@ -1,0 +1,9 @@
+/u/user/gcho/DRC/TB2025/install/lib64/libdrcTB.so
+/u/user/gcho/DRC/TB2025/install/include/TBdetector.h
+/u/user/gcho/DRC/TB2025/install/include/TBevt.h
+/u/user/gcho/DRC/TB2025/install/include/TBmid.h
+/u/user/gcho/DRC/TB2025/install/include/TBobject.h
+/u/user/gcho/DRC/TB2025/install/include/TBread.h
+/u/user/gcho/DRC/TB2025/install/include/TButility.h
+/u/user/gcho/DRC/TB2025/install/lib64/libdrcTB_rdict.pcm
+/u/user/gcho/DRC/TB2025/install/lib64/libdrcTB.rootmap
