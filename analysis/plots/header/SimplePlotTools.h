@@ -21,43 +21,45 @@ namespace PlotTool {
 // -- terminate ROOT if the given file or object is not found
 // -- return TFile* if it pass the check
 // -- UPDATE: it does not work if a histogram is under sub-directory of the root file
-TFile* ExistenceCheck(TString functionName, TString fileName, TString objectName) {
-  if( gSystem->AccessPathName(fileName) ) {
+TFile* ExistenceCheck(TString functionName, TString fileName, TString objectName)
+{
+  if(gSystem->AccessPathName(fileName))
+  {
     cout << "*** [PlotTool::" << functionName << "] fileName = [" << fileName << "]: not found ***" << endl;
     gApplication->Terminate();
   }
 
-  TFile* f_input = TFile::Open( fileName );
+  TFile* f_input = TFile::Open(fileName);
   // if( !f_input->GetListOfKeys()->Contains(objectName) ) { // this only works when the object is not in a sub-directory under TFile
-  if( f_input->Get(objectName) == nullptr ) {
+  if(f_input->Get(objectName) == nullptr)
+  {
     cout << "*** [PlotTool::" << functionName << "] objectName = [" << objectName << "]: not found in [" << fileName << "] ***" << endl;
     gApplication->Terminate();
   }
-
   return f_input;
 }
 
-TH1D* Get_Hist(TString fileName, TString histName, TString histName_new = "" ) {
+TH1D* Get_Hist(TString fileName, TString histName, TString histName_new = "")
+{
   TH1::AddDirectory(kFALSE);
   TFile* f_input = ExistenceCheck("Get_Hist", fileName, histName);
 
   TH1::AddDirectory(kFALSE);
   TH1D* h_temp = (TH1D*)f_input->Get(histName);
-  if( histName_new != "" )
-    h_temp->SetName( histName_new );
+  if(histName_new != "") h_temp->SetName(histName_new);
 
   f_input->Close();
 
   return h_temp;
 }
 
-TH2D* Get_Hist2D(TString fileName, TString histName, TString histName_new = "" ) {
+TH2D* Get_Hist2D(TString fileName, TString histName, TString histName_new = "")
+{
   TFile* f_input = ExistenceCheck("Get_Hist2D", fileName, histName);
 
   TH2::AddDirectory(kFALSE);
   TH2D* h_temp = (TH2D*)f_input->Get(histName)->Clone();
-  if( histName_new != "" )
-    h_temp->SetName( histName_new );
+  if(histName_new != "") h_temp->SetName(histName_new);
 
   f_input->Close();
 
@@ -76,19 +78,20 @@ TH2D* Get_Hist2D(TString fileName, TString histName, TString histName_new = "" )
 }
 
 
-TGraphAsymmErrors* Get_Graph(TString fileName, TString graphName, TString graphName_New = "" ) {
+TGraphAsymmErrors* Get_Graph(TString fileName, TString graphName, TString graphName_New = "")
+{
   TFile* f_input = ExistenceCheck("Get_Graph", fileName, graphName);
   
   TGraphAsymmErrors* g_temp = (TGraphAsymmErrors*)f_input->Get(graphName)->Clone();
-  if( graphName_New != "" )
-    g_temp->SetName( graphName_New );
+  if( graphName_New != "" ) g_temp->SetName(graphName_New);
 
   f_input->Close();
 
   return g_temp;
 }
 
-TH1D* MakeHist_fromVector(TString histName, vector<Double_t> vec_binEdge) {
+TH1D* MakeHist_fromVector(TString histName, vector<Double_t> vec_binEdge)
+{
   Int_t nBin = (Int_t)vec_binEdge.size()-1; // -- # bins = # bin edges - 1
 
   Double_t* arr_binEdge = new Double_t[nBin+1];
@@ -99,7 +102,8 @@ TH1D* MakeHist_fromVector(TString histName, vector<Double_t> vec_binEdge) {
   return new TH1D(histName, "", nBin, arr_binEdge);
 }
 
-TH2D* MakeHist2D_fromVector(TString histName, vector<Double_t> vec_binEdgeX, vector<Double_t> vec_binEdgeY) {
+TH2D* MakeHist2D_fromVector(TString histName, vector<Double_t> vec_binEdgeX, vector<Double_t> vec_binEdgeY)
+{
   Int_t nBinX = (Int_t)vec_binEdgeX.size()-1; // -- # bins = # bin edges - 1
 
   Double_t* arr_binEdgeX = new Double_t[nBinX+1];
@@ -117,15 +121,17 @@ TH2D* MakeHist2D_fromVector(TString histName, vector<Double_t> vec_binEdgeX, vec
   return new TH2D(histName, "", nBinX, arr_binEdgeX, nBinY, arr_binEdgeY);
 }
 
-void SetLegend( TLegend *& legend, Double_t xMin = 0.75, Double_t yMin = 0.75, Double_t xMax = 0.95, Double_t yMax = 0.95 ) {
-  legend = new TLegend( xMin, yMin, xMax, yMax );
+void SetLegend(TLegend *& legend, Double_t xMin = 0.75, Double_t yMin = 0.75, Double_t xMax = 0.95, Double_t yMax = 0.95)
+{
+  legend = new TLegend(xMin, yMin, xMax, yMax);
   legend->SetFillStyle(0);
   legend->SetBorderSize(0);
-  legend->SetTextFont( 62 );
+  legend->SetTextFont(62);
 }
 
-void SetAxis_SinglePad( TAxis *axisX, TAxis *axisY, TString titleX, TString titleY ) {
-  axisX->SetTitle( titleX );
+void SetAxis_SinglePad(TAxis *axisX, TAxis *axisY, TString titleX, TString titleY)
+{
+  axisX->SetTitle(titleX);
   axisX->SetTitleFont(42);
   axisX->SetTitleSize(0.05);
   axisX->SetTitleOffset(1.1);
@@ -136,7 +142,7 @@ void SetAxis_SinglePad( TAxis *axisX, TAxis *axisY, TString titleX, TString titl
   axisX->SetNoExponent();
   axisX->SetMoreLogLabels();
 
-  axisY->SetTitle( titleY );
+  axisY->SetTitle(titleY);
   axisY->SetTitleFont(42);
   axisY->SetTitleSize(0.05);
   axisY->SetTitleOffset(1.2);
@@ -145,12 +151,13 @@ void SetAxis_SinglePad( TAxis *axisX, TAxis *axisY, TString titleX, TString titl
   axisY->SetLabelSize(0.04);
 }
 
-void SetAxis_TopPad( TAxis *axisX, TAxis *axisY, TString titleY ) {
+void SetAxis_TopPad(TAxis *axisX, TAxis *axisY, TString titleY)
+{
   axisX->SetLabelFont(42);
   axisX->SetLabelSize(0.000);
   axisX->SetTitleSize(0.000);
 
-  axisY->SetTitle( titleY );
+  axisY->SetTitle(titleY);
   axisY->SetTitleFont(42);
   axisY->SetTitleSize(0.05);
   axisY->SetTitleOffset(1.25);
@@ -159,11 +166,12 @@ void SetAxis_TopPad( TAxis *axisX, TAxis *axisY, TString titleY ) {
   axisY->SetLabelSize(0.04);
 }
 
-void SetAxis_BottomPad( TAxis *axisX, TAxis *axisY, TString titleX, TString titleY) {
-  axisX->SetTitle( titleX );
+void SetAxis_BottomPad(TAxis *axisX, TAxis *axisY, TString titleX, TString titleY)
+{
+  axisX->SetTitle(titleX);
   axisX->SetTitleFont(42);
-  axisX->SetTitleSize( 0.2 );
-  axisX->SetTitleOffset( 0.85 );
+  axisX->SetTitleSize(0.2);
+  axisX->SetTitleOffset(0.85);
 
   axisX->SetLabelFont(42);
   axisX->SetLabelSize(0.13);
@@ -173,25 +181,27 @@ void SetAxis_BottomPad( TAxis *axisX, TAxis *axisY, TString titleX, TString titl
   axisX->SetNoExponent();
 
 
-  axisY->SetTitle( titleY );
+  axisY->SetTitle(titleY);
   axisY->SetTitleFont(42);
   axisY->SetTitleSize(0.12);
-  axisY->SetTitleOffset( 0.55 );
+  axisY->SetTitleOffset(0.55);
 
   axisY->SetLabelFont(42);
-  axisY->SetLabelSize( 0.10 );
+  axisY->SetLabelSize(0.10);
 }
 
-void DrawLine( TF1*& f_line, Int_t color = kRed ) {
+void DrawLine(TF1*& f_line, Int_t color = kRed)
+{
   f_line = new TF1("f_line", "1", -10000, 10000);
   f_line->SetLineColor(color);
   f_line->SetLineWidth(1);
   f_line->Draw("LSAME");
 }
 
-TH1D* DivideEachBin_ByBinWidth( TH1D* h, TString HistName = "" ) {
+TH1D* DivideEachBin_ByBinWidth(TH1D* h, TString HistName = "")
+{
   TH1D* h_return = (TH1D*)h->Clone();
-  if( HistName != "" )
+  if(HistName != "")
     h_return->SetName(HistName);
 
   Int_t nBin = h->GetNbinsX();
@@ -212,10 +222,10 @@ TH1D* DivideEachBin_ByBinWidth( TH1D* h, TString HistName = "" ) {
   return h_return;
 }
 
-TH1D* MultiplyEachBin_byBinWidth( TH1D* h, TString HistName = "" ) {
+TH1D* MultiplyEachBin_byBinWidth(TH1D* h, TString HistName = "")
+{
   TH1D* h_return = (TH1D*)h->Clone();
-  if( HistName != "" )
-    h_return->SetName(HistName);
+  if(HistName != "") h_return->SetName(HistName);
 
   Int_t nBin = h->GetNbinsX();
   for(Int_t i=0; i<nBin; ++i)
@@ -223,7 +233,7 @@ TH1D* MultiplyEachBin_byBinWidth( TH1D* h, TString HistName = "" ) {
     Int_t i_bin = i+1;
     Double_t Entry_before = h->GetBinContent(i_bin);
     Double_t Error_before = h->GetBinError(i_bin);
-    Double_t BinWidth = h->GetBinWidth(i_bin);
+    Double_t BinWidth     = h->GetBinWidth(i_bin);
 
     Double_t Entry_after = Entry_before * BinWidth;
     Double_t Error_after = Error_before * BinWidth;
@@ -235,7 +245,8 @@ TH1D* MultiplyEachBin_byBinWidth( TH1D* h, TString HistName = "" ) {
   return h_return;
 }
 
-Bool_t IsRatio1( TH1D* h1, TH1D* h2) {
+Bool_t IsRatio1(TH1D* h1, TH1D* h2)
+{
   Bool_t isRatio1 = kTRUE;
 
   TString h1Name = h1->GetName();
@@ -244,7 +255,7 @@ Bool_t IsRatio1( TH1D* h1, TH1D* h2) {
 
   Int_t nBin1 = h1->GetNbinsX();
   Int_t nBin2 = h2->GetNbinsX();
-  if( nBin1 != nBin2 )
+  if(nBin1 != nBin2)
   {
     printf("(nBin1 = %d, nBin2 = %d) is different! ... need to check\n", nBin1, nBin2);
     return kFALSE;
@@ -258,7 +269,7 @@ Bool_t IsRatio1( TH1D* h1, TH1D* h2) {
     Double_t content2 = h2->GetBinContent(i_bin);
     Double_t ratio = content1 / content2;
 
-    if( fabs(ratio - 1) > 1e-5 )
+    if(fabs(ratio - 1) > 1e-5)
     {
       printf("[%02d bin (%.1lf, %.1lf) is deviated from 1]\n", i_bin, h1->GetBinLowEdge(i_bin), h1->GetBinLowEdge(i_bin+1));
       printf("   Bin content1 = %lf\n", content1);
@@ -277,11 +288,12 @@ Bool_t IsRatio1( TH1D* h1, TH1D* h2) {
   return isRatio1;
 }
 
-TH1D* Convert_GraphToHist( TGraphAsymmErrors *g ) {
-  const Int_t nBin = g->GetN();
+TH1D* Convert_GraphToHist( TGraphAsymmErrors *g )
+{
+  const Int_t nBin   = g->GetN();
   Double_t *BinEdges = new Double_t[nBin+1];
-  Double_t *value = new Double_t[nBin];
-  Double_t *error = new Double_t[nBin];
+  Double_t *value    = new Double_t[nBin];
+  Double_t *error    = new Double_t[nBin];
 
   for(Int_t i=0; i<nBin; ++i)
   {
@@ -289,16 +301,15 @@ TH1D* Convert_GraphToHist( TGraphAsymmErrors *g ) {
     g->GetPoint(i, x, y);
 
     // -- make BinEdges array -- //
-    Double_t ErrX_Low = g->GetErrorXlow(i);
+    Double_t ErrX_Low  = g->GetErrorXlow(i);
     Double_t ErrX_High = g->GetErrorXhigh(i);
 
-    if( i == nBin-1 )
+    if(i == nBin-1)
     {
-      BinEdges[i] = x - ErrX_Low;
+      BinEdges[i]   = x - ErrX_Low;
       BinEdges[i+1] = x + ErrX_High;
     }
-    else
-      BinEdges[i] = x - ErrX_Low;
+    else {BinEdges[i] = x - ErrX_Low;}
 
 
     // -- store graph information -- //
@@ -312,14 +323,14 @@ TH1D* Convert_GraphToHist( TGraphAsymmErrors *g ) {
   }
 
   TString GraphName = g->GetName();
-  TH1D* h_temp = new TH1D( "h_"+GraphName, "", nBin, BinEdges );
+  TH1D* h_temp = new TH1D("h_"+GraphName, "", nBin, BinEdges);
 
   // -- fill this histogram using graph information -- //
   for(Int_t i=0; i<nBin; ++i)
   {
     Int_t i_bin = i+1;
-    h_temp->SetBinContent( i_bin, value[i] );
-    h_temp->SetBinError( i_bin, error[i] );
+    h_temp->SetBinContent(i_bin, value[i]);
+    h_temp->SetBinError(i_bin, error[i]);
   }
 
   return h_temp;
@@ -338,21 +349,20 @@ TH1D* Convert_GraphToHist( TGraphAsymmErrors *g ) {
 //   }
 // }
 
-void Print_Histogram( TH1D* h, Bool_t NegativeCheck = kFALSE, Bool_t skipZero = kFALSE ) {
+void Print_Histogram(TH1D* h, Bool_t NegativeCheck = kFALSE, Bool_t skipZero = kFALSE)
+{
   h->Print();
-  if( skipZero )
-    cout << "The entry with value == 0 will be skipped" << endl;
+  if(skipZero) cout << "The entry with value == 0 will be skipped" << endl;
 
   // -- underflow -- //
   Double_t value_uf = h->GetBinContent(0);
   Double_t errorAbs_uf = h->GetBinError(0);
   Double_t errorRel_uf = value_uf == 0 ? 0 : errorAbs_uf / value_uf;
 
-  printf( "Underflow: (value, error) = (%lf, %lf (%7.3lf %%))\n", 
+  printf("Underflow: (value, error) = (%lf, %lf (%7.3lf %%))\n", 
          value_uf, errorAbs_uf, errorRel_uf*100 );
 
-  if( NegativeCheck && value_uf < 0 )
-    printf("################## NEGATIVE BIN ##################");
+  if(NegativeCheck && value_uf < 0) printf("################## NEGATIVE BIN ##################");
 
   Int_t nBin = h->GetNbinsX();
   for(Int_t i=0; i<nBin; ++i)
@@ -366,36 +376,34 @@ void Print_Histogram( TH1D* h, Bool_t NegativeCheck = kFALSE, Bool_t skipZero = 
 
     Double_t errorAbs = h->GetBinError(i_bin);
     Double_t errorRel;
-    if( value != 0 )
-      errorRel = errorAbs / value;
-    else
-      errorRel = 0;
+    if(value != 0) errorRel = errorAbs / value;
+    else           errorRel = 0;
 
-    printf( "%02d bin: [%6.1lf, %6.1lf] (value, error) = (%lf, %lf (%7.3lf %%))\n", 
+    printf("%02d bin: [%6.1lf, %6.1lf] (value, error) = (%lf, %lf (%7.3lf %%))\n", 
            i_bin, LowerEdge, UpperEdge, value, errorAbs, errorRel*100 );
     
-    if( NegativeCheck && value < 0 )
+    if(NegativeCheck && value < 0)
       printf("################## NEGATIVE BIN ##################");
   }
 
   // -- overflow -- //
-  Double_t value_of = h->GetBinContent(nBin+1);
+  Double_t value_of    = h->GetBinContent(nBin+1);
   Double_t errorAbs_of = h->GetBinError(nBin+1);
   Double_t errorRel_of = value_of == 0 ? 0 : errorAbs_of / value_of;
 
-  printf( "Overflow: (value, error) = (%lf, %lf (%7.3lf %%))\n", 
+  printf("Overflow: (value, error) = (%lf, %lf (%7.3lf %%))\n", 
          value_of, errorAbs_of, errorRel_of*100 );
 
-  if( NegativeCheck && value_of < 0 )
+  if(NegativeCheck && value_of < 0)
     printf("################## NEGATIVE BIN ##################");
 
   printf("\n\n");
 }
 
-void Print_Histogram2D( TH2D* h2D, Bool_t skipZero = kFALSE ) {
+void Print_Histogram2D( TH2D* h2D, Bool_t skipZero = kFALSE )
+{
   cout << "[Print_Histogram2D] histName = " << h2D->GetName() << endl;
-  if( skipZero )
-    cout << "The entry with value == 0 will be skipped" << endl;
+  if(skipZero) cout << "The entry with value == 0 will be skipped" << endl;
 
   Int_t nBinX = h2D->GetNbinsX();
   Int_t nBinY = h2D->GetNbinsY();
@@ -417,7 +425,7 @@ void Print_Histogram2D( TH2D* h2D, Bool_t skipZero = kFALSE ) {
       Double_t upperEdgeY = h2D->GetYaxis()->GetBinLowEdge(i_binY+1);
 
       Double_t value = h2D->GetBinContent(i_binX, i_binY);
-      if( skipZero && value == 0 ) continue;
+      if(skipZero && value == 0) continue;
 
       Double_t error = h2D->GetBinError(i_binX, i_binY);
 
@@ -430,8 +438,9 @@ void Print_Histogram2D( TH2D* h2D, Bool_t skipZero = kFALSE ) {
   cout << "[Print_Histogram2D] end" << endl;
 }
 
-TH1D* HistOperation(TString histName, TH1D* h1, TH1D* h2, TString operation) {
-  if( !(operation == "+" || operation == "-" || operation == "*" || operation == "/") )
+TH1D* HistOperation(TString histName, TH1D* h1, TH1D* h2, TString operation)
+{
+  if(!(operation == "+" || operation == "-" || operation == "*" || operation == "/"))
   {
     cout << "[HistOperation] operation = " << operation << " is not supported ... return nullptr" << endl;
     return nullptr;
@@ -439,7 +448,7 @@ TH1D* HistOperation(TString histName, TH1D* h1, TH1D* h2, TString operation) {
 
   Int_t nBin1 = h1->GetNbinsX();
   Int_t nBin2 = h2->GetNbinsX();
-  if( nBin1 != nBin2 )
+  if(nBin1 != nBin2)
   {
     printf("[HistOperation] (nBin1, nBin2) = (%d, %d): not same ... return nullptr\n", nBin1, nBin2);
     return nullptr;
@@ -457,10 +466,10 @@ TH1D* HistOperation(TString histName, TH1D* h1, TH1D* h2, TString operation) {
 
     Double_t value_return = -1;
 
-    if( operation == "+" ) value_return = value1 + value2;
-    if( operation == "-" ) value_return = value1 - value2;
-    if( operation == "*" ) value_return = value1 * value2;
-    if( operation == "/" ) value_return = value1 / value2;
+    if(operation == "+") value_return = value1 + value2;
+    if(operation == "-") value_return = value1 - value2;
+    if(operation == "*") value_return = value1 * value2;
+    if(operation == "/") value_return = value1 / value2;
 
     h_return->SetBinContent(i_bin, value_return);
     h_return->SetBinError(i_bin, 0); // -- no error propagation considered for now
@@ -469,8 +478,9 @@ TH1D* HistOperation(TString histName, TH1D* h1, TH1D* h2, TString operation) {
   return h_return;
 }
 
-TH2D* Hist2DOperation(TString histName, TH2D* h1, TH2D* h2, TString operation) {
-  if( !(operation == "+" || operation == "-" || operation == "*" || operation == "/") )
+TH2D* Hist2DOperation(TString histName, TH2D* h1, TH2D* h2, TString operation)
+{
+  if(!(operation == "+" || operation == "-" || operation == "*" || operation == "/"))
   {
     cout << "[HistOperation] operation = " << operation << " is not supported ... return nullptr" << endl;
     return nullptr;
@@ -478,7 +488,7 @@ TH2D* Hist2DOperation(TString histName, TH2D* h1, TH2D* h2, TString operation) {
 
   Int_t nBinX1 = h1->GetNbinsX();
   Int_t nBinX2 = h2->GetNbinsX();
-  if( nBinX1 != nBinX2 )
+  if(nBinX1 != nBinX2)
   {
     printf("[HistOperation] (nBinX1, nBinX2) = (%d, %d): not same ... return nullptr\n", nBinX1, nBinX2);
     return nullptr;
@@ -486,7 +496,7 @@ TH2D* Hist2DOperation(TString histName, TH2D* h1, TH2D* h2, TString operation) {
 
   Int_t nBinY1 = h1->GetNbinsY();
   Int_t nBinY2 = h2->GetNbinsY();
-  if( nBinY1 != nBinY2 )
+  if(nBinY1 != nBinY2)
   {
     printf("[HistOperation] (nBinY1, nBinY2) = (%d, %d): not same ... return nullptr\n", nBinY1, nBinY2);
     return nullptr;
@@ -508,10 +518,10 @@ TH2D* Hist2DOperation(TString histName, TH2D* h1, TH2D* h2, TString operation) {
 
       Double_t value_return = -1;
 
-      if( operation == "+" ) value_return = value1 + value2;
-      if( operation == "-" ) value_return = value1 - value2;
-      if( operation == "*" ) value_return = value1 * value2;
-      if( operation == "/" ) value_return = value1 / value2;
+      if(operation == "+") value_return = value1 + value2;
+      if(operation == "-") value_return = value1 - value2;
+      if(operation == "*") value_return = value1 * value2;
+      if(operation == "/") value_return = value1 / value2;
 
       h_return->SetBinContent(i_binX, i_binY, value_return);
       h_return->SetBinError(i_binX, i_binY, 0); // -- no error propagation considered for now
@@ -521,15 +531,18 @@ TH2D* Hist2DOperation(TString histName, TH2D* h1, TH2D* h2, TString operation) {
   return h_return;
 }
 
-TH1D* QuadSum_Hist(vector<TH1D*> vec_hist) {
+TH1D* QuadSum_Hist(vector<TH1D*> vec_hist)
+{
   TH1D* h_quadSum = (TH1D*)vec_hist[0]->Clone();
 
   Int_t nBin = h_quadSum->GetNbinsX();
-  for(Int_t i=0; i<nBin; ++i) {
+  for(Int_t i=0; i<nBin; ++i)
+  {
     Int_t i_bin = i+1;
     Double_t quadSum_ith = 0;
 
-    for(const auto& h: vec_hist) {
+    for(const auto& h: vec_hist)
+    {
       Double_t value = h->GetBinContent(i_bin);
       quadSum_ith += value*value;
     }
@@ -543,36 +556,37 @@ TH1D* QuadSum_Hist(vector<TH1D*> vec_hist) {
   return h_quadSum;
 }
 
-void Make_Dir(TString dirPath) {
+void Make_Dir(TString dirPath)
+{
   bool recursive = kTRUE;
-  if( gSystem->mkdir(dirPath.Data(), recursive) < 0 )
+  if(gSystem->mkdir(dirPath.Data(), recursive) < 0)
     throw std::runtime_error("Directory = " + dirPath + " cannot be created (already exists?)");
 }
 
-Bool_t DoesDirExist(TString path) {
+Bool_t DoesDirExist(TString path)
+{
   return !gSystem->AccessPathName(path); // -- kFALSE: exist
 }
 
-void Make_Dir_IfNotExist(TString dirName) {
-  if( !DoesDirExist(dirName) )
-    Make_Dir(dirName);
-}
+void Make_Dir_IfNotExist(TString dirName)
+{ if(!DoesDirExist(dirName)) Make_Dir(dirName); }
 
-
-
-struct HistInfo {
+struct HistInfo
+{
   TH1D* h;
   TString legend;
   Int_t color;
 };
 
-struct GraphInfo {
+struct GraphInfo
+{
   TGraphAsymmErrors* g;
   TString legend;
   Int_t color;
 };
 
-struct LatexInfo {
+struct LatexInfo
+{
   Double_t x;
   Double_t y;
   TString content;
@@ -649,139 +663,151 @@ public:
 
   CanvasBase() { }
 
-  CanvasBase(TString canvasName, Bool_t isLogX = kFALSE, Bool_t isLogY = kFALSE ) {
+  CanvasBase(TString canvasName, Bool_t isLogX = kFALSE, Bool_t isLogY = kFALSE)
+  {
     canvasName_ = canvasName;
     isLogX_ = isLogX;
     isLogY_ = isLogY;
   }
 
-  void SetLogXY(Bool_t flagX, Bool_t flagY) {
+  void SetLogXY(Bool_t flagX, Bool_t flagY)
+  {
     isLogX_ = flagX;
     isLogY_ = flagY;
   }
 
-  void SetCanvasName(TString canvasName) { canvasName_ = canvasName; }
+  void SetCanvasName(TString canvasName) {canvasName_ = canvasName;}
 
-  void SetTitle( TString titleX, TString titleY ) {
+  void SetTitle(TString titleX, TString titleY)
+  {
     titleX_ = titleX;
     titleY_ = titleY;
   }
 
-  void SetTitle( TString titleX, TString titleY, TString titleRatio ) {
+  void SetTitle(TString titleX, TString titleY, TString titleRatio)
+  {
     titleX_ = titleX;
     titleY_ = titleY;
     titleRatio_ = titleRatio;
   }
 
-  void SetLegendPosition( Double_t minX, Double_t minY, Double_t maxX, Double_t maxY ) {
+  void SetLegendPosition(Double_t minX, Double_t minY, Double_t maxX, Double_t maxY)
+  {
     legendMinX_ = minX;
     legendMinY_ = minY;
     legendMaxX_ = maxX;
     legendMaxY_ = maxY;
   }
 
-  void SetLegendColumn( Int_t nColumn ) {
+  void SetLegendColumn(Int_t nColumn)
+  {
     setLegendColumn_ = kTRUE;
     nLegendColumn_ = nColumn;
   }
 
-  void SetRangeX( Double_t min, Double_t max ) {
+  void SetRangeX(Double_t min, Double_t max)
+  {
     minX_ = min;
     maxX_ = max;
     setRangeX_ = kTRUE;
   }
 
-  void SetRangeY( Double_t min, Double_t max ) {
+  void SetRangeY(Double_t min, Double_t max)
+  {
     minY_ = min;
     maxY_ = max;
     setRangeY_ = kTRUE;
   }
 
-  void SetRangeRatio( Double_t min, Double_t max ) {
+  void SetRangeRatio(Double_t min, Double_t max)
+  {
     minRatio_ = min;
     maxRatio_ = max;
     setRangeRatio_ = kTRUE;
   }
 
-  void SetAutoRangeY( Bool_t value = kTRUE ) { setAutoRangeY_ = value; }
+  void SetAutoRangeY(Bool_t value = kTRUE) {setAutoRangeY_ = value;}
 
-  void SetAutoRangeRatio( Bool_t value = kTRUE ) { setAutoRangeRatio_ = value; }
+  void SetAutoRangeRatio(Bool_t value = kTRUE) {setAutoRangeRatio_ = value;}
 
-  void Latex_CMSPre() { setLatexCMSPre_ = kTRUE; }
+  void Latex_CMSPre() {setLatexCMSPre_ = kTRUE;}
 
-  void Latex_CMSInternal() { setLatexCMSInternal_ = kTRUE; }
+  void Latex_CMSInternal() {setLatexCMSInternal_ = kTRUE;}
 
-  void Latex_CMSSim() { setLatexCMSSim_ = kTRUE; }
+  void Latex_CMSSim() {setLatexCMSSim_ = kTRUE;}
 
-  void Latex_LumiEnergy(Double_t lumi, Int_t energy) {
+  void Latex_LumiEnergy(Double_t lumi, Int_t energy)
+  {
     setLatexLumiEnergy_ = kTRUE;
     lumi_ = lumi;
     energy_ = energy;
   }
 
-  void RegisterLatex( Double_t x, Double_t y, TString content ) {
+  void RegisterLatex(Double_t x, Double_t y, TString content)
+  {
     setLatexInfo_ = kTRUE;
     LatexInfo latexInfo{x, y, content};
     latexInfos_.push_back( latexInfo );
   }
 
-  void RegisterLatex( Double_t x, Double_t y, Double_t fontType, Double_t fontsize, TString text ) {
+  void RegisterLatex(Double_t x, Double_t y, Double_t fontType, Double_t fontsize, TString text)
+  {
     setLatexInfo_ = kTRUE;
     TString content = TString::Format("#font[%.2lf]{#scale[%.2lf]{%s}}", fontType, fontsize, text.Data());
     LatexInfo latexInfo{x, y, content};
     latexInfos_.push_back( latexInfo );
   }
 
-  void SetMarkerSize( Double_t size ) {
+  void SetMarkerSize(Double_t size)
+  {
     setMarkerSize_ = kTRUE;
     markerSize_ = size;
   }
 
-  void SetSavePath( TString path ) {
+  void SetSavePath(TString path)
+  {
     setSavePath_ = kTRUE;
     savePath_ = path;
   }
 
-  void SetRatioLogY( Bool_t flag = kTRUE ) { setRatioLogY_ = flag; }
+  void SetRatioLogY(Bool_t flag = kTRUE) {setRatioLogY_ = flag;}
 
-  void SetSimpleLogLabel( Bool_t flag = kTRUE ) { simpleLogLabel_ = flag; }
+  void SetSimpleLogLabel(Bool_t flag = kTRUE) {simpleLogLabel_ = flag;}
 
-  TString GetCanvasName() { return canvasName_; }
+  TString GetCanvasName() {return canvasName_;}
 
-  void SetFormat(TString format) { format_ = format; };
+  void SetFormat(TString format) {format_ = format;};
 
-  void RemoveRatioError(Bool_t flag = kTRUE) { removeRatioErr_ = flag; }
+  void RemoveRatioError(Bool_t flag = kTRUE) {removeRatioErr_ = flag;}
 
-  Double_t AxisRangeX() { return (maxX_ - minX_); }
-  Double_t AxisRangeY() { return (maxY_ - minY_); }
-  Double_t AxisRangeRatio() { return (maxRatio_ - minRatio_); }
+  Double_t AxisRangeX() {return (maxX_ - minX_);}
+  Double_t AxisRangeY() {return (maxY_ - minY_);}
+  Double_t AxisRangeRatio() {return (maxRatio_ - minRatio_);}
 
   
   // -- implemented later
-  virtual void Draw( TString drawOp )
+  virtual void Draw(TString drawOp)
   {
-
   }
 
-  void DrawLatex_CMSPre() {
-    latex_.DrawLatexNDC(0.13, 0.96, "#font[62]{CMS}#font[42]{#it{#scale[0.8]{ Preliminary}}}");
-  }
+  void DrawLatex_CMSPre() {latex_.DrawLatexNDC(0.13, 0.96, "#font[62]{CMS}#font[42]{#it{#scale[0.8]{ Preliminary}}}");}
 
-  void DrawLatex_CMSInternal() {
-    latex_.DrawLatexNDC(0.13, 0.96, "#font[62]{CMS}#font[42]{#it{#scale[0.8]{ Internal}}}");
-  }
+  void DrawLatex_CMSInternal() {latex_.DrawLatexNDC(0.13, 0.96, "#font[62]{CMS}#font[42]{#it{#scale[0.8]{ Internal}}}");}
 
-  void DrawLatex_LumiEnergy() {
+  void DrawLatex_LumiEnergy()
+  {
     // DrawLatex_CMSPre();
     latex_.DrawLatexNDC(0.70, 0.96, "#font[42]{#scale[0.7]{"+TString::Format("%.1lf fb^{-1} (%d TeV)", lumi_, energy_)+"}}");
   }
 
-  void DrawLatex_CMSSim() {
+  void DrawLatex_CMSSim()
+  {
     latex_.DrawLatexNDC(0.13, 0.96, "#font[62]{CMS}#font[42]{#it{#scale[0.8]{ Simulation}}}");
     latex_.DrawLatexNDC(0.85, 0.96, "#font[42]{#scale[0.7]{13 TeV}}");
   }
 
-  void SetCanvas_Square() {
+  void SetCanvas_Square()
+  {
     c_ = new TCanvas(canvasName_, "", 800, 800);
     c_->cd();
     
@@ -790,13 +816,12 @@ public:
     c_->SetRightMargin(0.045);
     c_->SetBottomMargin(0.13);
 
-    if( isLogX_ )
-      c_->SetLogx();
-    if( isLogY_ )
-      c_->SetLogy();
+    if(isLogX_) c_->SetLogx();
+    if(isLogY_) c_->SetLogy();
   }
 
-  void SetCanvas_Ratio() {
+  void SetCanvas_Ratio()
+  {
     c_ = new TCanvas(canvasName_, "", 800, 800);
     c_->cd();
 
@@ -809,8 +834,8 @@ public:
     topPad_->SetRightMargin(0.045);
     topPad_->SetBottomMargin(0.3);
 
-    if( isLogX_ ) topPad_->SetLogx();
-    if( isLogY_ ) topPad_->SetLogy();
+    if(isLogX_) topPad_->SetLogx();
+    if(isLogY_) topPad_->SetLogy();
 
     c_->cd();
     bottomPad_ = new TPad( "BottomPad", "BottomPad", 0.01, 0.01, 0.99, 0.29 );
@@ -823,19 +848,21 @@ public:
     bottomPad_->SetRightMargin(0.045);
     bottomPad_->SetLeftMargin(0.13);
 
-    if( isLogX_ ) bottomPad_->SetLogx();
-    if( setRatioLogY_ ) bottomPad_->SetLogy();
+    if(isLogX_) bottomPad_->SetLogx();
+    if(setRatioLogY_) bottomPad_->SetLogy();
   }
 
-  void DrawLatexAll() {
-    if( setLatexLumiEnergy_ ) DrawLatex_LumiEnergy();
+  void DrawLatexAll()
+  {
+    if(setLatexLumiEnergy_) DrawLatex_LumiEnergy();
 
-    if( setLatexCMSPre_ ) DrawLatex_CMSPre();
-    if( setLatexCMSSim_ ) DrawLatex_CMSSim();
-    if( setLatexCMSInternal_ ) DrawLatex_CMSInternal();
+    if(setLatexCMSPre_) DrawLatex_CMSPre();
+    if(setLatexCMSSim_) DrawLatex_CMSSim();
+    if(setLatexCMSInternal_) DrawLatex_CMSInternal();
 
-    if( setLatexInfo_ ) {
-      for( auto latexInfo : latexInfos_ )
+    if(setLatexInfo_)
+    {
+      for(auto latexInfo : latexInfos_)
         latex_.DrawLatexNDC( latexInfo.x, latexInfo.y, latexInfo.content );
     }
   }
@@ -854,41 +881,47 @@ public:
 
   HistCanvas() { }
 
-  HistCanvas(TString canvasName, Bool_t isLogX = kFALSE, Bool_t isLogY = kFALSE ): HistCanvas() {
+  HistCanvas(TString canvasName, Bool_t isLogX = kFALSE, Bool_t isLogY = kFALSE ): HistCanvas()
+  {
     canvasName_ = canvasName;
     isLogX_ = isLogX;
     isLogY_ = isLogY;
   }
 
-  void Register( TH1D* h, TString legend, Int_t color  ) {
-    HistInfo histInfo{ (TH1D*)h->Clone(), legend, color };
-    histInfos_.push_back( histInfo );
+  void Register(TH1D* h, TString legend, Int_t color)
+  {
+    HistInfo histInfo{(TH1D*)h->Clone(), legend, color};
+    histInfos_.push_back(histInfo);
   }
 
-  void SetRebin( Int_t n ) {
+  void SetRebin(Int_t n)
+  {
     nRebin_ = n;
     setRebin_ = kTRUE;
   }
 
-  void FillHist( Double_t fillAlpha ) {
+  void FillHist(Double_t fillAlpha)
+  {
     fillHist_ = kTRUE;
     fillAlpha_ = 0.5;
   }
 
-  void Draw( TString drawOp = "EPSAME" ) {
-    if( !drawOp.Contains("SAME") ) drawOp = drawOp + "SAME";
+  void Draw(TString drawOp = "EPSAME")
+  {
+    if(!drawOp.Contains("SAME")) drawOp = drawOp + "SAME";
 
     TLegend *legend;
-    PlotTool::SetLegend( legend, legendMinX_, legendMinY_, legendMaxX_, legendMaxY_ );
-    if( setLegendColumn_ ) legend->SetNColumns(nLegendColumn_);
+    PlotTool::SetLegend(legend, legendMinX_, legendMinY_, legendMaxX_, legendMaxY_);
+    if(setLegendColumn_) legend->SetNColumns(nLegendColumn_);
 
     // -- rebin before calculating y-range
-    if( setRebin_ ) {
+    if(setRebin_)
+    {
       for(auto& histInfo: histInfos_)
-        histInfo.h->Rebin( nRebin_ );
+        histInfo.h->Rebin(nRebin_);
     }
 
-    if( setAutoRangeY_ ) CalcAutoRangeY(histInfos_);
+    if(setAutoRangeY_) CalcAutoRangeY(histInfos_);
 
     // -- draw canvas
     SetCanvas_Square();
@@ -896,7 +929,8 @@ public:
     c_->cd();
 
     Int_t nHist = histInfos_.size();
-    for(Int_t i=0; i<nHist; ++i) {
+    for(Int_t i=0; i<nHist; ++i)
+    {
       TH1D*& h = histInfos_[i].h;
       TString legendName = histInfos_[i].legend;
       Int_t color = histInfos_[i].color;
@@ -909,35 +943,39 @@ public:
       h->SetFillColorAlpha(kWhite, 0);
       h->SetTitle("");
 
-      if( fillHist_ ) {
+      if(fillHist_)
+      {
         h->SetFillColorAlpha(color, fillAlpha_); 
         h->SetMarkerSize(0);
         h->SetLineWidth(0);
       }
 
-      if( i == 0 ) PlotTool::SetAxis_SinglePad( h->GetXaxis(), h->GetYaxis(), titleX_, titleY_ );
-      if( setRangeX_ ) h->GetXaxis()->SetRangeUser( minX_, maxX_ );
-      if( setRangeY_ ) h->GetYaxis()->SetRangeUser( minY_, maxY_ );
+      if(i == 0 ) PlotTool::SetAxis_SinglePad(h->GetXaxis(), h->GetYaxis(), titleX_, titleY_);
+      if(setRangeX_) h->GetXaxis()->SetRangeUser( minX_, maxX_);
+      if(setRangeY_) h->GetYaxis()->SetRangeUser( minY_, maxY_);
 
-      if( simpleLogLabel_ ) {
+      if(simpleLogLabel_)
+      {
         h->GetXaxis()->SetMoreLogLabels(kFALSE);
         h->GetXaxis()->SetNoExponent(kFALSE);
       }
 
-      legend->AddEntry( h, legendName );
+      legend->AddEntry(h, legendName);
     }
 
     legend->Draw();
 
     DrawLatexAll();
 
-    if( setSavePath_ ) c_->SaveAs(savePath_+"/"+canvasName_+format_);
-    else               c_->SaveAs(format_);
+    if(setSavePath_) c_->SaveAs(savePath_+"/"+canvasName_+format_);
+    else             c_->SaveAs(format_);
   }
 
   // -- for auto adjustment of Y-range
-  void CalcAutoRangeY(vector<HistInfo> vec_histInfo) {
-    if( setRangeY_ ) {
+  void CalcAutoRangeY(vector<HistInfo> vec_histInfo)
+  {
+    if(setRangeY_)
+    {
       cout << "[CalcAutoRangeY] Already custom y-range is provided: do not calculate the auto range..." << endl;
       return;
     }
@@ -945,24 +983,27 @@ public:
 
     Double_t globalMin = 9999;
     Double_t globalMax = -9999;
-    for(const auto& histInfo : vec_histInfo ) {
+    for(const auto& histInfo : vec_histInfo)
+    {
       Double_t localMin = histInfo.h->GetBinContent(histInfo.h->GetMinimumBin());
       Double_t localMax = histInfo.h->GetBinContent(histInfo.h->GetMaximumBin());
-      if( localMin < globalMin ) globalMin = localMin;
-      if( localMax > globalMax ) globalMax = localMax;
+      if(localMin < globalMin) globalMin = localMin;
+      if(localMax > globalMax) globalMax = localMax;
     }
 
     minY_ = globalMin > 0 ? 0 : globalMin * 1.3;
     maxY_ = globalMax * 1.3;
 
     // -- TO-DO: multiplication factor adjustment according to isLogY
-    if( minY_ == 0 && isLogY_ ) minY_ = 0.5;
-    if( isLogY_ ) maxY_ = globalMax * 1e2;
+    if(minY_ == 0 && isLogY_) minY_ = 0.5;
+    if(isLogY_) maxY_ = globalMax * 1e2;
   }
 
   // -- for auto adjustment of ratio-range (for the inherit classes)
-  void CalcAutoRangeRatio(vector<HistInfo> vec_histInfo) {
-    if( setRangeRatio_ ) {
+  void CalcAutoRangeRatio(vector<HistInfo> vec_histInfo)
+  {
+    if(setRangeRatio_)
+    {
       cout << "[CalcAutoRangeRatio] Already custom ratio-range is provided: do not calculate the auto range..." << endl;
       return;
     }
@@ -971,18 +1012,20 @@ public:
 
     Double_t globalMin = 9999;
     Double_t globalMax = -9999;
-    for(const auto& histInfo : vec_histInfo ) {
+    for(const auto& histInfo : vec_histInfo)
+    {
       Double_t localMin = histInfo.h->GetBinContent(histInfo.h->GetMinimumBin());
       Double_t localMax = histInfo.h->GetBinContent(histInfo.h->GetMaximumBin());
-      if( localMin < globalMin ) globalMin = localMin;
-      if( localMax > globalMax ) globalMax = localMax;
+      if(localMin < globalMin) globalMin = localMin;
+      if(localMax > globalMax) globalMax = localMax;
     }
 
     minRatio_ = globalMin < 0.3 ? 0 : globalMin*0.9;
     maxRatio_ = globalMax * 1.1;
 
     // -- if the range is quite narrow
-    if( globalMin > 0.95 && globalMax < 1.05 ) {
+    if(globalMin > 0.95 && globalMax < 1.05)
+    {
       minRatio_ = globalMin*0.99;
       maxRatio_ = globalMax*1.01;
     }
@@ -996,26 +1039,29 @@ public:
 
   HistCanvaswRatio() { }
 
-  HistCanvaswRatio(TString canvasName, Bool_t isLogX = kFALSE, Bool_t isLogY = kFALSE ): HistCanvaswRatio() {
+  HistCanvaswRatio(TString canvasName, Bool_t isLogX = kFALSE, Bool_t isLogY = kFALSE ): HistCanvaswRatio()
+  {
     canvasName_ = canvasName;
     isLogX_ = isLogX;
     isLogY_ = isLogY;
   }
 
-  void Draw( TString drawOp = "EPSAME" ) {
-    if( !drawOp.Contains("SAME") ) drawOp = drawOp + "SAME";
+  void Draw(TString drawOp = "EPSAME")
+  {
+    if(!drawOp.Contains("SAME")) drawOp = drawOp + "SAME";
 
     TLegend *legend;
-    PlotTool::SetLegend( legend, legendMinX_, legendMinY_, legendMaxX_, legendMaxY_ );
-    if( setLegendColumn_ ) legend->SetNColumns(nLegendColumn_);
+    PlotTool::SetLegend(legend, legendMinX_, legendMinY_, legendMaxX_, legendMaxY_);
+    if(setLegendColumn_) legend->SetNColumns(nLegendColumn_);
 
     // -- rebin before calculating y-range
-    if( setRebin_ ) {
+    if(setRebin_)
+    {
       for(auto& histInfo: histInfos_)
         histInfo.h->Rebin( nRebin_ );
     }
 
-    if( setAutoRangeY_ ) CalcAutoRangeY(histInfos_);
+    if(setAutoRangeY_) CalcAutoRangeY(histInfos_);
 
     // -- draw canvas
     SetCanvas_Ratio();
@@ -1024,7 +1070,8 @@ public:
     topPad_->cd();
 
     Int_t nHist = histInfos_.size();
-    for(Int_t i=0; i<nHist; ++i) {
+    for(Int_t i=0; i<nHist; ++i)
+    {
       TH1D*& h = histInfos_[i].h;
       TString legendName = histInfos_[i].legend;
       Int_t color = histInfos_[i].color;
@@ -1037,17 +1084,18 @@ public:
       h->SetFillColorAlpha(kWhite, 0); 
       h->SetTitle("");
 
-      if( fillHist_ ) {
+      if(fillHist_)
+      {
         h->SetFillColorAlpha(color, fillAlpha_); 
         h->SetMarkerSize(0);
         h->SetLineWidth(0);
       }
 
-      if( i == 0 ) PlotTool::SetAxis_TopPad( h->GetXaxis(), h->GetYaxis(), titleY_ );
-      if( setRangeX_ ) h->GetXaxis()->SetRangeUser( minX_, maxX_ );
-      if( setRangeY_ ) h->GetYaxis()->SetRangeUser( minY_, maxY_ );
+      if(i == 0 ) PlotTool::SetAxis_TopPad(h->GetXaxis(), h->GetYaxis(), titleY_);
+      if(setRangeX_) h->GetXaxis()->SetRangeUser(minX_, maxX_);
+      if(setRangeY_) h->GetYaxis()->SetRangeUser(minY_, maxY_);
 
-      legend->AddEntry( h, legendName );
+      legend->AddEntry(h, legendName);
     }
 
     legend->Draw();
@@ -1059,10 +1107,11 @@ public:
     bottomPad_->cd();
 
     CalcRatioHist();
-    if( setAutoRangeRatio_ ) CalcAutoRangeRatio(histInfoRatios_);
+    if(setAutoRangeRatio_) CalcAutoRangeRatio(histInfoRatios_);
 
     Int_t nHistRatio = histInfoRatios_.size();
-    for(Int_t i=0; i<nHistRatio; ++i) {
+    for(Int_t i=0; i<nHistRatio; ++i)
+    {
       TH1D*& h_ratio = histInfoRatios_[i].h;
       Int_t  color   = histInfoRatios_[i].color;
 
@@ -1073,11 +1122,12 @@ public:
       h_ratio->SetLineColor(color);
       h_ratio->SetFillColorAlpha(kWhite, 0); 
       h_ratio->SetTitle("");
-      if( i == 0 ) SetAxis_BottomPad(h_ratio->GetXaxis(), h_ratio->GetYaxis(), titleX_, titleRatio_);
-      if( setRangeX_ )     h_ratio->GetXaxis()->SetRangeUser( minX_, maxX_ );
-      if( setRangeRatio_ ) h_ratio->GetYaxis()->SetRangeUser( minRatio_, maxRatio_ );
+      if(i == 0) SetAxis_BottomPad(h_ratio->GetXaxis(), h_ratio->GetYaxis(), titleX_, titleRatio_);
+      if(setRangeX_)     h_ratio->GetXaxis()->SetRangeUser(minX_, maxX_);
+      if(setRangeRatio_) h_ratio->GetYaxis()->SetRangeUser(minRatio_, maxRatio_);
 
-      if( simpleLogLabel_ ) {
+      if(simpleLogLabel_)
+      {
         h_ratio->GetXaxis()->SetMoreLogLabels(kFALSE);
         h_ratio->GetXaxis()->SetNoExponent(kFALSE);
       }
@@ -1086,21 +1136,24 @@ public:
     TF1 *f_line;
     PlotTool::DrawLine(f_line);
 
-    if( removeRatioErr_ ) {
+    if(removeRatioErr_)
+    {
       TLatex latex_ratio;
       latex_ratio.DrawLatexNDC(0.16, 0.85, "#font[42]{#scale[1.5]{#color[2]{Error bar is not shown}}}");
     }
 
-    if( setSavePath_ ) c_->SaveAs(savePath_+"/"+canvasName_+format_);
-    else               c_->SaveAs(format_);
+    if(setSavePath_) c_->SaveAs(savePath_+"/"+canvasName_+format_);
+    else             c_->SaveAs(format_);
   }
 
-  void CalcRatioHist() {
+  void CalcRatioHist()
+  {
     TH1D* h_ref = histInfos_[0].h;
     h_ref->Sumw2();
 
     Int_t nHist = histInfos_.size();
-    for(Int_t i=1; i<nHist; ++i) {  // -- starts with 1 -- //
+    for(Int_t i=1; i<nHist; ++i)
+    {  // -- starts with 1 -- //
       TH1D* h_target = (TH1D*)histInfos_[i].h->Clone();
       h_target->Sumw2();
       
@@ -1113,28 +1166,30 @@ public:
       // -- because, usually, the ratio is used to compare target and ref
       // -- if there is "no change" (i.e. stay as 0), the ratio can be 1.0, 
       // -- indicate that the target is same with the ref.
-      for(Int_t j=0; j<h_ratioTemp->GetNbinsX(); ++j) {
+      for(Int_t j=0; j<h_ratioTemp->GetNbinsX(); ++j)
+      {
         Int_t j_bin = j+1;
-        if( h_ratioTemp->GetBinContent(j_bin) == 0 ) {
-          if( h_ref->GetBinContent(j_bin) == 0 && h_target->GetBinContent(j_bin) == 0 ) {
+        if(h_ratioTemp->GetBinContent(j_bin) == 0)
+        {
+          if(h_ref->GetBinContent(j_bin) == 0 && h_target->GetBinContent(j_bin) == 0)
+          {
             cout << "[HistCanvaswRatio::CalcRatioHist] " << j_bin << "th bin: 0/0 = 0.0 -> 1.0" << endl;
             h_ratioTemp->SetBinContent(j_bin, 1.0);
           }
         }
       }
 
-      if( removeRatioErr_ ) RemoveError_Hist(h_ratioTemp);
+      if(removeRatioErr_) RemoveError_Hist(h_ratioTemp);
 
-      HistInfo histInfoRatio{ h_ratioTemp, legend, color };
+      HistInfo histInfoRatio{h_ratioTemp, legend, color};
       histInfoRatios_.push_back( histInfoRatio );
     }
   }
 
 private:
-  void RemoveError_Hist(TH1D* h) {
-    for(Int_t i=0; i<h->GetNbinsX(); ++i) {
-      h->SetBinError(i+1, 0);
-    }
+  void RemoveError_Hist(TH1D* h)
+  {
+    for(Int_t i=0; i<h->GetNbinsX(); ++i) {h->SetBinError(i+1, 0);}
   }
 };
 
@@ -1154,40 +1209,45 @@ public:
 
   HistStackCanvaswRatio() { }
 
-  HistStackCanvaswRatio(TString canvasName, Bool_t isLogX = kFALSE, Bool_t isLogY = kFALSE ): HistStackCanvaswRatio() {
+  HistStackCanvaswRatio(TString canvasName, Bool_t isLogX = kFALSE, Bool_t isLogY = kFALSE): HistStackCanvaswRatio()
+  {
     canvasName_ = canvasName;
     isLogX_ = isLogX;
     isLogY_ = isLogY;
   }
 
-  void RegisterData( TH1D* h, TString legend, Int_t color  ) {
+  void RegisterData(TH1D* h, TString legend, Int_t color)
+  {
     histInfo_data_.h = (TH1D*)h->Clone();
     histInfo_data_.legend = legend;
     histInfo_data_.color = color;
   }
 
-  void Draw( TString drawOp = "EPSAME" ) {
-    if( !drawOp.Contains("SAME") ) drawOp = drawOp + "SAME";
+  void Draw(TString drawOp = "EPSAME")
+  {
+    if(!drawOp.Contains("SAME")) drawOp = drawOp + "SAME";
 
     // -- rebin
-    if( setRebin_ ) {
-      histInfo_data_.h->Rebin( nRebin_ );
+    if(setRebin_)
+    {
+      histInfo_data_.h->Rebin(nRebin_);
       for(auto& histInfo: histInfos_)
-        histInfo.h->Rebin( nRebin_ );
+        histInfo.h->Rebin(nRebin_);
     }
 
     // -- make legend
     TLegend *legend;
-    PlotTool::SetLegend( legend, legendMinX_, legendMinY_, legendMaxX_, legendMaxY_ );
-    if( setLegendColumn_ ) legend->SetNColumns(nLegendColumn_);
+    PlotTool::SetLegend(legend, legendMinX_, legendMinY_, legendMaxX_, legendMaxY_);
+    if(setLegendColumn_) legend->SetNColumns(nLegendColumn_);
 
     // -- setup data, MC stacks + add in the legend
     SetDataHistogram(legend);
     SetMCStack(legend);
 
-    if( setAutoRangeY_ ) {
+    if(setAutoRangeY_)
+    {
       vector<HistInfo> vec_histInfo_All = histInfos_;
-      vec_histInfo_All.push_back( histInfo_data_ );
+      vec_histInfo_All.push_back(histInfo_data_);
       CalcAutoRangeY(vec_histInfo_All);
     }
 
@@ -1200,9 +1260,9 @@ public:
     TH1D* h_format = (TH1D*)histInfo_data_.h->Clone();
     h_format->Reset("ICES");
     h_format->Draw("");
-    PlotTool::SetAxis_TopPad( h_format->GetXaxis(), h_format->GetYaxis(), titleY_ );
-    if( setRangeX_ ) h_format->GetXaxis()->SetRangeUser( minX_, maxX_ );
-    if( setRangeY_ ) h_format->GetYaxis()->SetRangeUser( minY_, maxY_ );
+    PlotTool::SetAxis_TopPad(h_format->GetXaxis(), h_format->GetYaxis(), titleY_);
+    if(setRangeX_) h_format->GetXaxis()->SetRangeUser(minX_, maxX_);
+    if(setRangeY_) h_format->GetYaxis()->SetRangeUser(minY_, maxY_);
 
     hs->Draw("HISTSAME");
     histInfo_data_.h->Draw(drawOp);
@@ -1229,44 +1289,46 @@ public:
     h_ratio_dataToStack_->SetTitle("");
     PlotTool::SetAxis_BottomPad(h_ratio_dataToStack_->GetXaxis(), h_ratio_dataToStack_->GetYaxis(), titleX_, titleRatio_);
 
-    if( setAutoRangeRatio_ ) {
+    if(setAutoRangeRatio_)
+    {
       vector<HistInfo> vec_histInfoRatio; // -- dummy vector for HistInfo to use CalcAutoRangeRatio function
       HistInfo histInfo_ratio;
       histInfo_ratio.h = (TH1D*)h_ratio_dataToStack_->Clone();
       vec_histInfoRatio.push_back( histInfo_ratio );
       CalcAutoRangeRatio(vec_histInfoRatio);
     }
-    if( setRangeRatio_ ) h_ratio_dataToStack_->GetYaxis()->SetRangeUser( minRatio_, maxRatio_ );
+    if(setRangeRatio_) h_ratio_dataToStack_->GetYaxis()->SetRangeUser(minRatio_, maxRatio_);
 
     TF1 *f_line;
     PlotTool::DrawLine(f_line);
 
     TLatex latex_ratio;
-    if( showDataMCRatio_ ) {
+    if(showDataMCRatio_)
+    {
       TString ratioInfo = TString::Format("Overall %s = %.3lf", titleRatio_.Data(), overallRatio_);
       latex_ratio.DrawLatexNDC(0.16, 0.85, "#font[42]{#scale[1.5]{#color[2]{"+ratioInfo+"}}}");
     }
 
-    if( setSavePath_ ) c_->SaveAs(savePath_+"/"+canvasName_+format_);
-    else               c_->SaveAs(format_);
+    if(setSavePath_) c_->SaveAs(savePath_+"/"+canvasName_+format_);
+    else             c_->SaveAs(format_);
   }
 
-  void ShowDataMCRatio(Bool_t flag=kTRUE) {
-    showDataMCRatio_ = flag;
-  }
+  void ShowDataMCRatio(Bool_t flag=kTRUE) {showDataMCRatio_ = flag;}
 
-  void Ratio_Reversed(Bool_t flag=kTRUE) { ratioReversed_ = flag; }
+  void Ratio_Reversed(Bool_t flag=kTRUE) {ratioReversed_ = flag;}
 
 private:
-  void SetMCStack(TLegend *legend) {
+  void SetMCStack(TLegend *legend)
+  {
     hs = new THStack("hs", "");
 
     Int_t nHistStack = (Int_t)histInfos_.size();
-    for(Int_t i=0; i<nHistStack; ++i) {
+    for(Int_t i=0; i<nHistStack; ++i)
+    {
       TH1D*& h    = histInfos_[i].h;
       Int_t color = histInfos_[i].color;
 
-      if( setRebin_ ) h->Rebin( nRebin_ );
+      if(setRebin_) h->Rebin(nRebin_);
 
       h->SetStats(kFALSE);
       h->SetMarkerStyle(20);
@@ -1275,22 +1337,23 @@ private:
       h->SetFillColor(color);
       h->SetTitle("");
 
-      if( setRangeX_ ) h->GetXaxis()->SetRangeUser( minX_, maxX_ );
-      if( setRangeY_ ) h->GetYaxis()->SetRangeUser( minY_, maxY_ );
+      if(setRangeX_) h->GetXaxis()->SetRangeUser(minX_, maxX_);
+      if(setRangeY_) h->GetYaxis()->SetRangeUser(minY_, maxY_);
 
-      hs->Add( h );
+      hs->Add(h);
     }
 
     for(Int_t i=nHistStack-1; i>=0; i--) // -- reverse order
       legend->AddEntry(histInfos_[i].h, histInfos_[i].legend);
   }
 
-  void SetDataHistogram(TLegend *legend) {
+  void SetDataHistogram(TLegend *legend)
+  {
     TH1D*& h           = histInfo_data_.h;
     TString legendName = histInfo_data_.legend;
     Int_t color        = histInfo_data_.color;
 
-    if( setRebin_ ) h->Rebin( nRebin_ );
+    if(setRebin_) h->Rebin(nRebin_);
 
     h->SetStats(kFALSE);
     h->SetMarkerStyle(20);
@@ -1299,54 +1362,57 @@ private:
     h->SetFillColorAlpha(kWhite, 0); 
     h->SetTitle("");
 
-    if( setRangeX_ ) h->GetXaxis()->SetRangeUser( minX_, maxX_ );
-    if( setRangeY_ ) h->GetYaxis()->SetRangeUser( minY_, maxY_ );
+    if(setRangeX_) h->GetXaxis()->SetRangeUser(minX_, maxX_);
+    if(setRangeY_) h->GetYaxis()->SetRangeUser(minY_, maxY_);
 
-    legend->AddEntry( h, legendName, "EP" ); // -- no horizontal error bar
+    legend->AddEntry(h, legendName, "EP"); // -- no horizontal error bar
   }
 
-  void SetRatioHistogram() {
+  void SetRatioHistogram()
+  {
     TH1D* h_data = (TH1D*)histInfo_data_.h->Clone();
     h_data->Sumw2();
 
     TH1D *h_totStack = NULL;
     Int_t nHistStack = (Int_t)histInfos_.size();
-    for(Int_t i_stack=0; i_stack<nHistStack; ++i_stack) {
+    for(Int_t i_stack=0; i_stack<nHistStack; ++i_stack)
+    {
       histInfos_[i_stack].h->Sumw2();
 
-      if( h_totStack == NULL )
-        h_totStack = (TH1D*)histInfos_[i_stack].h->Clone();
-      else
-        h_totStack->Add( histInfos_[i_stack].h );
+      if(h_totStack == NULL) h_totStack = (TH1D*)histInfos_[i_stack].h->Clone();
+      else h_totStack->Add(histInfos_[i_stack].h);
     }
 
     h_ratio_dataToStack_ = (TH1D*)h_data->Clone();
-    if( ratioReversed_ ) h_ratio_dataToStack_->Divide( h_totStack, h_data ); // -- MC/data
-    else                 h_ratio_dataToStack_->Divide( h_data, h_totStack ); // -- data/MC
+    if(ratioReversed_) h_ratio_dataToStack_->Divide(h_totStack, h_data); // -- MC/data
+    else               h_ratio_dataToStack_->Divide(h_data, h_totStack); // -- data/MC
 
-    if( showDataMCRatio_ ) {
+    if(showDataMCRatio_)
+    {
       Double_t entry_data  = CountEntry_GivenRange(h_data);
       Double_t entry_stack = CountEntry_GivenRange(h_totStack);
-      if( ratioReversed_ ) overallRatio_ = entry_stack / entry_data;
+      if(ratioReversed_) overallRatio_ = entry_stack / entry_data;
       else                 overallRatio_ = entry_data / entry_stack;
     }
   }
 
-  Double_t CountEntry_GivenRange( TH1D* h ) {
+  Double_t CountEntry_GivenRange(TH1D* h)
+  {
     Double_t theEntry = 0;
-    if( setRangeX_ ) {  // -- if x range is set: count the entry only within the given x range
+    if(setRangeX_) // -- if x range is set: count the entry only within the given x range
+    {  
       Int_t nBin = h->GetNbinsX();
-      for(Int_t i=0; i<nBin; ++i) {
+      for(Int_t i=0; i<nBin; ++i)
+      {
         Int_t i_bin = i+1;
         Double_t lowerEdge = h->GetBinLowEdge(i_bin);
         Double_t upperEdge = h->GetBinLowEdge(i_bin+1);
 
-        if( minX_ <= lowerEdge && upperEdge <= maxX_ )
-          theEntry += h->GetBinContent(i_bin);
+        if(minX_ <= lowerEdge && upperEdge <= maxX_) theEntry += h->GetBinContent(i_bin);
       }
     }
-    else // -- if not: count total entry
-      theEntry = h->Integral();
+    // -- if not: count total entry
+    else theEntry = h->Integral();
 
     return theEntry;
   }
@@ -1358,23 +1424,26 @@ public:
 
   GraphCanvas() { }
 
-  GraphCanvas(TString canvasName, Bool_t isLogX = kFALSE, Bool_t isLogY = kFALSE ): GraphCanvas() {
+  GraphCanvas(TString canvasName, Bool_t isLogX = kFALSE, Bool_t isLogY = kFALSE ): GraphCanvas()
+  {
     canvasName_ = canvasName;
     isLogX_ = isLogX;
     isLogY_ = isLogY;
   }
 
-  void Register( TGraphAsymmErrors* g, TString legend, Int_t color  ) {
-    GraphInfo graphInfo{ (TGraphAsymmErrors*)g->Clone(), legend, color };
-    graphInfos_.push_back( graphInfo );
+  void Register(TGraphAsymmErrors* g, TString legend, Int_t color)
+  {
+    GraphInfo graphInfo{(TGraphAsymmErrors*)g->Clone(), legend, color};
+    graphInfos_.push_back(graphInfo);
   }
 
-  void Draw( TString drawOp = "EPSAME" ) {
-    if( !drawOp.Contains("SAME") ) drawOp = drawOp + "SAME";
+  void Draw(TString drawOp = "EPSAME")
+  {
+    if(!drawOp.Contains("SAME")) drawOp = drawOp + "SAME";
 
     TLegend *legend;
-    PlotTool::SetLegend( legend, legendMinX_, legendMinY_, legendMaxX_, legendMaxY_ );
-    if( setLegendColumn_ ) legend->SetNColumns(nLegendColumn_);
+    PlotTool::SetLegend(legend, legendMinX_, legendMinY_, legendMaxX_, legendMaxY_);
+    if(setLegendColumn_) legend->SetNColumns(nLegendColumn_);
 
     // -- draw canvas
     SetCanvas_Square();
@@ -1382,18 +1451,19 @@ public:
     c_->cd();
 
     Int_t nGraph = graphInfos_.size();
-    for(Int_t i=0; i<nGraph; ++i) {
+    for(Int_t i=0; i<nGraph; ++i)
+    {
       TGraphAsymmErrors*& g = graphInfos_[i].g;
       TString legendName = graphInfos_[i].legend;
       Int_t color = graphInfos_[i].color;
 
-      if( i == 0) g->Draw("A"+drawOp);
-      else        g->Draw(drawOp);
+      if(i == 0) g->Draw("A"+drawOp);
+      else       g->Draw(drawOp);
 
       g->SetMarkerStyle(20);
       g->SetMarkerColor(color);
       g->SetMarkerSize(1.3);
-      if( setMarkerSize_ ) g->SetMarkerSize(markerSize_);
+      if(setMarkerSize_) g->SetMarkerSize(markerSize_);
 
       g->SetLineColor(color);
       g->SetLineWidth(1.0);
@@ -1401,19 +1471,19 @@ public:
       g->SetFillColorAlpha(kWhite, 0); 
       g->SetTitle("");
 
-      if( i == 0 ) PlotTool::SetAxis_SinglePad( g->GetXaxis(), g->GetYaxis(), titleX_, titleY_ );
-      if( setRangeX_ ) g->GetXaxis()->SetLimits( minX_, maxX_ );
-      if( setRangeY_ ) g->GetYaxis()->SetRangeUser( minY_, maxY_ );
+      if(i == 0 ) PlotTool::SetAxis_SinglePad(g->GetXaxis(), g->GetYaxis(), titleX_, titleY_);
+      if(setRangeX_) g->GetXaxis()->SetLimits(minX_, maxX_);
+      if(setRangeY_) g->GetYaxis()->SetRangeUser(minY_, maxY_);
 
-      legend->AddEntry( g, legendName );
+      legend->AddEntry(g, legendName);
     }
 
     legend->Draw();
 
     DrawLatexAll();
 
-    if( setSavePath_ ) c_->SaveAs(savePath_+"/"+canvasName_+format_);
-    else               c_->SaveAs(format_);
+    if(setSavePath_) c_->SaveAs(savePath_+"/"+canvasName_+format_);
+    else             c_->SaveAs(format_);
   }
 };
 
@@ -1423,18 +1493,20 @@ public:
 
   GraphCanvaswRatio() { }
 
-  GraphCanvaswRatio(TString canvasName, Bool_t isLogX = kFALSE, Bool_t isLogY = kFALSE ): GraphCanvaswRatio() {
+  GraphCanvaswRatio(TString canvasName, Bool_t isLogX = kFALSE, Bool_t isLogY = kFALSE ): GraphCanvaswRatio()
+  {
     canvasName_ = canvasName;
     isLogX_ = isLogX;
     isLogY_ = isLogY;
   }
 
-  void Draw( TString drawOp = "EPSAME" ) {
-    if( !drawOp.Contains("SAME") ) drawOp = drawOp + "SAME";
+  void Draw(TString drawOp = "EPSAME")
+  {
+    if(!drawOp.Contains("SAME")) drawOp = drawOp + "SAME";
 
     TLegend *legend;
-    PlotTool::SetLegend( legend, legendMinX_, legendMinY_, legendMaxX_, legendMaxY_ );
-    if( setLegendColumn_ ) legend->SetNColumns(nLegendColumn_);
+    PlotTool::SetLegend(legend, legendMinX_, legendMinY_, legendMaxX_, legendMaxY_);
+    if(setLegendColumn_) legend->SetNColumns(nLegendColumn_);
 
     // -- draw canvas
     SetCanvas_Ratio();
@@ -1443,7 +1515,8 @@ public:
     topPad_->cd();
 
     Int_t nGraph = graphInfos_.size();
-    for(Int_t i=0; i<nGraph; ++i) {
+    for(Int_t i=0; i<nGraph; ++i)
+    {
       TGraphAsymmErrors*& g = graphInfos_[i].g;
       TString legendName = graphInfos_[i].legend;
       Int_t color = graphInfos_[i].color;
@@ -1454,7 +1527,7 @@ public:
       g->SetMarkerStyle(20);
       g->SetMarkerColor(color);
       g->SetMarkerSize(1.3);
-      if( setMarkerSize_ ) g->SetMarkerSize(markerSize_);
+      if(setMarkerSize_) g->SetMarkerSize(markerSize_);
 
       g->SetLineColor(color);
       g->SetLineWidth(1.0);
@@ -1462,11 +1535,11 @@ public:
       g->SetFillColorAlpha(kWhite, 0); 
       g->SetTitle("");
 
-      if( i == 0 ) PlotTool::SetAxis_TopPad( g->GetXaxis(), g->GetYaxis(), titleY_ );
-      if( setRangeX_ ) g->GetXaxis()->SetLimits( minX_, maxX_ );
-      if( setRangeY_ ) g->GetYaxis()->SetRangeUser( minY_, maxY_ );
+      if(i == 0) PlotTool::SetAxis_TopPad(g->GetXaxis(), g->GetYaxis(), titleY_);
+      if(setRangeX_) g->GetXaxis()->SetLimits(minX_, maxX_);
+      if(setRangeY_) g->GetYaxis()->SetRangeUser(minY_, maxY_);
 
-      legend->AddEntry( g, legendName );
+      legend->AddEntry(g, legendName);
     }
 
     legend->Draw();
@@ -1480,7 +1553,8 @@ public:
     CalcRatioGraph();
 
     Int_t nGraphRatio = graphInfoRatios_.size();
-    for(Int_t i=0; i<nGraphRatio; ++i) {
+    for(Int_t i=0; i<nGraphRatio; ++i)
+    {
       TGraphAsymmErrors*& g_ratio = graphInfoRatios_[i].g;
       Int_t               color   = graphInfoRatios_[i].color;
 
@@ -1490,7 +1564,7 @@ public:
       g_ratio->SetMarkerStyle(20);
       g_ratio->SetMarkerColor(color);
       g_ratio->SetMarkerSize(1.3);
-      if( setMarkerSize_ ) g_ratio->SetMarkerSize(markerSize_);
+      if(setMarkerSize_) g_ratio->SetMarkerSize(markerSize_);
 
       g_ratio->SetLineColor(color);
       g_ratio->SetLineWidth(1.0);
@@ -1498,19 +1572,20 @@ public:
       g_ratio->SetFillColorAlpha(kWhite, 0); 
       g_ratio->SetTitle("");
 
-      if( i == 0 ) SetAxis_BottomPad(g_ratio->GetXaxis(), g_ratio->GetYaxis(), titleX_, titleRatio_);
-      if( setRangeX_ )     g_ratio->GetXaxis()->SetLimits( minX_, maxX_ );
-      if( setRangeRatio_ ) g_ratio->GetYaxis()->SetRangeUser( minRatio_, maxRatio_ );
+      if(i == 0) SetAxis_BottomPad(g_ratio->GetXaxis(), g_ratio->GetYaxis(), titleX_, titleRatio_);
+      if(setRangeX_)     g_ratio->GetXaxis()->SetLimits(minX_, maxX_);
+      if(setRangeRatio_) g_ratio->GetYaxis()->SetRangeUser(minRatio_, maxRatio_);
     }
 
     TF1 *f_line;
     PlotTool::DrawLine(f_line);
 
-    if( setSavePath_ ) c_->SaveAs(savePath_+"/"+canvasName_+format_);
-    else               c_->SaveAs(format_);
+    if(setSavePath_) c_->SaveAs(savePath_+"/"+canvasName_+format_);
+    else             c_->SaveAs(format_);
   }
 
-  void CalcRatioGraph() {
+  void CalcRatioGraph()
+  {
     TGraphAsymmErrors* g_ref = graphInfos_[0].g;
 
     Int_t nGraph = graphInfos_.size();
@@ -1521,17 +1596,18 @@ public:
       TString legend = graphInfos_[i].legend;
       Int_t color = graphInfos_[i].color;
 
-      TGraphAsymmErrors *g_ratioTemp = MakeRatioGraph( g_target, g_ref );
-      if( removeRatioErr_ ) RemoveError_Graph(g_ratioTemp);
+      TGraphAsymmErrors *g_ratioTemp = MakeRatioGraph(g_target, g_ref);
+      if(removeRatioErr_) RemoveError_Graph(g_ratioTemp);
 
-      GraphInfo graphInfoRatio{ g_ratioTemp, legend, color };
-      graphInfoRatios_.push_back( graphInfoRatio );
+      GraphInfo graphInfoRatio{g_ratioTemp, legend, color};
+      graphInfoRatios_.push_back(graphInfoRatio);
     }
   }
 
   // -- NUM = Numerator
   // -- DEN = Denominator
-  TGraphAsymmErrors* MakeRatioGraph(TGraphAsymmErrors *g_NUM, TGraphAsymmErrors *g_DEN) {
+  TGraphAsymmErrors* MakeRatioGraph(TGraphAsymmErrors *g_NUM, TGraphAsymmErrors *g_DEN)
+  {
     TGraphAsymmErrors* g_ratio = (TGraphAsymmErrors*)g_DEN->Clone();
     g_ratio->Set(0); // --Remove all points (reset) -- //
 
@@ -1540,36 +1616,40 @@ public:
     if( nPoint_NUM != nPoint_DEN )
       printf("# points is different bewteen two graph...be careful for the ratio plot\n");
 
-    for(Int_t i_p=0; i_p<nPoint_NUM; i_p++) {
+    for(Int_t i_p=0; i_p<nPoint_NUM; i_p++)
+    {
       Double_t x_NUM, y_NUM;
       g_NUM->GetPoint(i_p, x_NUM, y_NUM);
-      Double_t error_NUMLow = g_NUM->GetErrorYlow(i_p);
+      Double_t error_NUMLow  = g_NUM->GetErrorYlow(i_p);
       Double_t error_NUMHigh = g_NUM->GetErrorYhigh(i_p);
       // -- take the larger uncertainty
-      Double_t error_NUM = error_NUMLow > error_NUMHigh ? error_NUMLow : error_NUMHigh;
+      Double_t error_NUM     = error_NUMLow > error_NUMHigh ? error_NUMLow : error_NUMHigh;
 
       Double_t x_DEN, y_DEN;
       g_DEN->GetPoint(i_p, x_DEN, y_DEN);
-      Double_t error_DENLow = g_DEN->GetErrorYlow(i_p);
+      Double_t error_DENLow  = g_DEN->GetErrorYlow(i_p);
       Double_t error_DENHigh = g_DEN->GetErrorYhigh(i_p);
       // -- take the larger uncertainty
-      Double_t error_DEN = error_DENLow > error_DENHigh ? error_DENLow : error_DENHigh;
+      Double_t error_DEN     = error_DENLow > error_DENHigh ? error_DENLow : error_DENHigh;
 
       Double_t ratio;
       Double_t ratio_error;
-      if( (nPoint_NUM != nPoint_DEN) && i_p >= nPoint_DEN ) {
+      if( (nPoint_NUM != nPoint_DEN) && i_p >= nPoint_DEN )
+      {
         ratio = 0;
         ratio_error = 0;
       }
       // else if(y_Type1 != 0 && error_Type1 != 0 && y_Type2 != 0 && error_Type2 != 0)
-      else if(y_DEN != 0) {
+      else if(y_DEN != 0)
+      {
         ratio = y_NUM / y_DEN;
         ratio_error = this->Error_PropagatedAoverB(y_NUM, error_NUM, y_DEN, error_DEN);
         //calculate Scale Factor(Type1/Type2) & error
 
         // cout << "ratio: " << ratio << " ratio_error: " << ratio_error << endl;
       }
-      else {
+      else
+      {
         cout << "Denominator is 0! ... ratio and its error are set as 0" << endl;
         ratio = 0;
         ratio_error = 0;
@@ -1589,7 +1669,8 @@ public:
     return g_ratio;
   }
 
-  Double_t Error_PropagatedAoverB(Double_t A, Double_t sigma_A, Double_t B, Double_t sigma_B) {
+  Double_t Error_PropagatedAoverB(Double_t A, Double_t sigma_A, Double_t B, Double_t sigma_B)
+  {
     Double_t ratio_A = (sigma_A) / A;
     Double_t ratio_B = (sigma_B) / B;
 
@@ -1599,8 +1680,10 @@ public:
   }
 
 private:
-  void RemoveError_Graph(TGraphAsymmErrors* g) {
-    for(Int_t i=0; i<g->GetN(); ++i) {
+  void RemoveError_Graph(TGraphAsymmErrors* g)
+  {
+    for(Int_t i=0; i<g->GetN(); ++i)
+    {
       g->SetPointEYhigh(i, 0);
       g->SetPointEYlow(i, 0);
     }
@@ -1614,33 +1697,34 @@ public:
   Bool_t isLogZ_ = kFALSE;
 
   Bool_t setRangeZ_ = kFALSE;
-  Double_t minZ_ = 0.0;
-  Double_t maxZ_ = 1.0;
+  Double_t minZ_    = 0.0;
+  Double_t maxZ_    = 1.0;
 
   Bool_t setAutoRangeZ_ = kFALSE;
 
   Hist2DCanvas() {};
 
-  Hist2DCanvas(TString canvasName, Bool_t isLogX = kFALSE, Bool_t isLogY = kFALSE, Bool_t isLogZ = kFALSE ): Hist2DCanvas() {
+  Hist2DCanvas(TString canvasName, Bool_t isLogX = kFALSE, Bool_t isLogY = kFALSE, Bool_t isLogZ = kFALSE): Hist2DCanvas()
+  {
     canvasName_ = canvasName;
     isLogX_ = isLogX;
     isLogY_ = isLogY;
     isLogZ_ = isLogZ;
   }
 
-  void Register( TH2D* h2D ) {
-    h2D_ = h2D;
-  }
+  void Register(TH2D* h2D) {h2D_ = h2D;}
 
-  void SetRangeZ( Double_t minZ, Double_t maxZ ) {
+  void SetRangeZ(Double_t minZ, Double_t maxZ)
+  {
     setRangeZ_ = kTRUE;
     minZ_ = minZ;
     maxZ_ = maxZ;
   }
 
-  void SetAutoRangeZ( Bool_t flag = kTRUE ) { setAutoRangeZ_ = flag; }
+  void SetAutoRangeZ(Bool_t flag = kTRUE) {setAutoRangeZ_ = flag;}
 
-  void Draw( TString drawOp = "COLZ" ) {
+  void Draw( TString drawOp = "COLZ" )
+  {
     // -- draw canvas
     SetCanvas_Square();
     c_->SetLogz(isLogZ_);
@@ -1662,9 +1746,9 @@ public:
     h2D_->GetXaxis()->SetNoExponent();
     h2D_->GetYaxis()->SetNoExponent();
 
-    if( setRangeX_ ) h2D_->GetXaxis()->SetRangeUser( minX_, maxX_ );
-    if( setRangeY_ ) h2D_->GetYaxis()->SetRangeUser( minY_, maxY_ );
-    if( setRangeZ_ ) h2D_->GetZaxis()->SetRangeUser( minZ_, maxZ_ );
+    if(setRangeX_) h2D_->GetXaxis()->SetRangeUser(minX_, maxX_);
+    if(setRangeY_) h2D_->GetYaxis()->SetRangeUser(minY_, maxY_);
+    if(setRangeZ_) h2D_->GetZaxis()->SetRangeUser(minZ_, maxZ_);
 
     if( setAutoRangeZ_ ) CalcAutoRangeZAndSet();
 
@@ -1675,48 +1759,54 @@ public:
 
     DrawLatexAll();
 
-    if( setSavePath_ ) c_->SaveAs(savePath_+"/"+canvasName_+format_);
+    if(setSavePath_) c_->SaveAs(savePath_+"/"+canvasName_+format_);
     else               c_->SaveAs(format_);
   }
 
 private:
-  void CalcAutoRangeZAndSet() {
+  void CalcAutoRangeZAndSet()
+  {
     Double_t minZ = 1e10;
     Double_t maxZ = -1e10;
 
     // -- find min and max
     Int_t nBinX = h2D_->GetNbinsX();
     Int_t nBinY = h2D_->GetNbinsY();
-    for(Int_t i_x=0; i_x<nBinX; i_x++) {
+    for(Int_t i_x=0; i_x<nBinX; i_x++)
+    {
       Int_t i_binX = i_x+1;
 
-      for(Int_t i_y=0; i_y<nBinY; i_y++) {
+      for(Int_t i_y=0; i_y<nBinY; i_y++)
+      {
         Int_t i_binY = i_y+1;
         Double_t value = h2D_->GetBinContent(i_binX, i_binY);
 
-        if( value > maxZ ) maxZ = value;
-        if( value < minZ ) minZ = value;
+        if(value > maxZ) maxZ = value;
+        if(value < minZ) minZ = value;
       }
     }
 
-    if( isLogZ_ ) {
-      if( minZ < 0 ) {
+    if(isLogZ_)
+    {
+      if(minZ < 0)
+      {
         cout << "[Hist2DCanvas::SetAutoRangeZ] minZ < 0 but isLogZ = True ... force the range to start at 0" << endl;
         minZ = 0;
       }
 
       maxZ = maxZ * 5;
     }
-    else { // -- linear scale
-      if( minZ > 0 ) minZ = minZ * 0.9;
+    else // -- linear scale
+    { 
+      if(minZ > 0) minZ = minZ * 0.9;
       else           minZ = minZ * 1.1;
 
-      if( maxZ > 0 ) maxZ = maxZ * 1.1;
+      if(maxZ > 0) maxZ = maxZ * 1.1;
       else           maxZ = maxZ * 0.9;
     }
 
     cout << "[Hist2DCanvas::SetAutoRangeZ] minZ = " << minZ << ", maxZ = " << maxZ << endl; 
-    h2D_->GetZaxis()->SetRangeUser( minZ, maxZ );
+    h2D_->GetZaxis()->SetRangeUser(minZ, maxZ);
   }
 
 };
@@ -1725,29 +1815,30 @@ private:
 class PlotAttr {
 public:
   PlotAttr() {}
-  PlotAttr(TString histName) { Set_HistName(histName); }
-  PlotAttr(const PlotAttr& plotAttr) {
+  PlotAttr(TString histName) {Set_HistName(histName);}
+  PlotAttr(const PlotAttr& plotAttr)
+  {
     histName_ = plotAttr.histName_;
 
     setRangeX_ = plotAttr.setRangeX_;
-    minX_ = plotAttr.minX_;
-    maxX_ = plotAttr.maxX_;
+    minX_      = plotAttr.minX_;
+    maxX_      = plotAttr.maxX_;
 
     setRangeY_ = plotAttr.setRangeY_;
-    minY_ = plotAttr.minY_;
-    maxY_ = plotAttr.maxY_;
+    minY_      = plotAttr.minY_;
+    maxY_      = plotAttr.maxY_;
 
     setRangeZ_ = plotAttr.setRangeZ_;
-    minZ_ = plotAttr.minZ_;
-    maxZ_ = plotAttr.maxZ_;
+    minZ_      = plotAttr.minZ_;
+    maxZ_      = plotAttr.maxZ_;
 
     setRangeRatio_ = plotAttr.setRangeRatio_;
-    minRatio_ = plotAttr.minRatio_;
-    maxRatio_ = plotAttr.maxRatio_;
+    minRatio_      = plotAttr.minRatio_;
+    maxRatio_      = plotAttr.maxRatio_;
 
-    titleX_ = plotAttr.titleX_;
-    titleY_ = plotAttr.titleY_;
-    titleZ_ = plotAttr.titleZ_;
+    titleX_     = plotAttr.titleX_;
+    titleY_     = plotAttr.titleY_;
+    titleZ_     = plotAttr.titleZ_;
     titleRatio_ = plotAttr.titleRatio_;
 
     vec_info_ = plotAttr.vec_info_;
@@ -1757,94 +1848,98 @@ public:
 
   }
 
-  void Set_HistName(TString histName) { histName_ = histName; }
+  void Set_HistName(TString histName) {histName_ = histName;}
 
-  void Set_RangeX(Double_t minX, Double_t maxX) {
+  void Set_RangeX(Double_t minX, Double_t maxX)
+  {
     setRangeX_ = kTRUE;
     minX_ = minX;
     maxX_ = maxX;
   }
 
-  void Set_RangeY(Double_t minY, Double_t maxY) {
+  void Set_RangeY(Double_t minY, Double_t maxY)
+  {
     setRangeY_ = kTRUE;
     minY_ = minY;
     maxY_ = maxY;
   }
 
-  void Set_RangeZ(Double_t minZ, Double_t maxZ) {
+  void Set_RangeZ(Double_t minZ, Double_t maxZ)
+  {
     setRangeZ_ = kTRUE;
     minZ_ = minZ;
     maxZ_ = maxZ;
   }
 
-  void Set_RangeRatio(Double_t minRatio, Double_t maxRatio) {
+  void Set_RangeRatio(Double_t minRatio, Double_t maxRatio)
+  {
     setRangeRatio_ = kTRUE;
     minRatio_ = minRatio;
     maxRatio_ = maxRatio;
   }
 
-  void Set_TitleX(TString title) { titleX_ = title; }
-  void Set_TitleY(TString title) { titleY_ = title; }
-  void Set_TitleZ(TString title) { titleZ_ = title; }
-  void Set_TitleRatio(TString title) { titleRatio_ = title; }
+  void Set_TitleX(TString title)     {titleX_ = title;}
+  void Set_TitleY(TString title)     {titleY_ = title;}
+  void Set_TitleZ(TString title)     {titleZ_ = title;}
+  void Set_TitleRatio(TString title) {titleRatio_ = title;}
 
-  void Set_Info(TString info) { vec_info_.push_back(info); }
-
-  // -- legacy
-  void Set_Info1(TString info) { info1_ = info; }
-  void Set_Info2(TString info) { info2_ = info; }
-
-  TString histName() { return histName_; }
-
-  Bool_t hasRatioX() { return setRangeX_; }
-  Double_t minX() { return minX_; }
-  Double_t maxX() { return maxX_; }
-
-  Bool_t hasRatioY() { return setRangeY_; }
-  Double_t minY() { return minY_; }
-  Double_t maxY() { return maxY_; }
-
-  Bool_t hasRatioZ() { return setRangeZ_; }
-  Double_t minZ() { return minZ_; }
-  Double_t maxZ() { return maxZ_; }
-
-  Bool_t hasRatioRatio() { return setRangeRatio_; }
-  Double_t minRatio() { return minRatio_; }
-  Double_t maxRatio() { return maxRatio_; }
-
-  TString titleX() { return titleX_; };
-  TString titleY() { return titleY_; };
-  TString titleZ() { return titleZ_; };
-  TString titleRatio() { return titleRatio_; };
-
-  TString info(UInt_t index) { return vec_info_[index]; }
+  void Set_Info(TString info) {vec_info_.push_back(info);}
 
   // -- legacy
-  TString info1() { return info1_; };
-  TString info2() { return info2_; };
+  void Set_Info1(TString info) {info1_ = info;}
+  void Set_Info2(TString info) {info2_ = info;}
+
+  TString histName() {return histName_;}
+
+  Bool_t hasRatioX() {return setRangeX_;}
+  Double_t minX()    {return minX_;}
+  Double_t maxX()    {return maxX_;}
+
+  Bool_t hasRatioY() {return setRangeY_;}
+  Double_t minY()    {return minY_;}
+  Double_t maxY()    {return maxY_;}
+
+  Bool_t hasRatioZ() {return setRangeZ_;}
+  Double_t minZ()    {return minZ_;}
+  Double_t maxZ()    {return maxZ_;}
+
+  Bool_t hasRatioRatio() {return setRangeRatio_;}
+  Double_t minRatio()    {return minRatio_;}
+  Double_t maxRatio()    {return maxRatio_;}
+
+  TString titleX()     {return titleX_;};
+  TString titleY()     {return titleY_;};
+  TString titleZ()     {return titleZ_;};
+  TString titleRatio() {return titleRatio_;};
+
+  TString info(UInt_t index) {return vec_info_[index];}
+
+  // -- legacy
+  TString info1() {return info1_;};
+  TString info2() {return info2_;};
 
 private:
   TString histName_ = "";
 
   Bool_t setRangeX_ = kFALSE;
-  Double_t minX_ = 0;
-  Double_t maxX_ = 0;
+  Double_t minX_    = 0;
+  Double_t maxX_    = 0;
 
   Bool_t setRangeY_ = kFALSE;
-  Double_t minY_ = 0;
-  Double_t maxY_ = 0;
+  Double_t minY_    = 0;
+  Double_t maxY_    = 0;
 
   Bool_t setRangeZ_ = kFALSE;
-  Double_t minZ_ = 0;
-  Double_t maxZ_ = 0;
+  Double_t minZ_    = 0;
+  Double_t maxZ_    = 0;
 
   Bool_t setRangeRatio_ = kFALSE;
-  Double_t minRatio_ = 0;
-  Double_t maxRatio_ = 0;
+  Double_t minRatio_    = 0;
+  Double_t maxRatio_    = 0;
 
-  TString titleX_ = "undefined";
-  TString titleY_ = "undefined";
-  TString titleZ_ = "undefined";
+  TString titleX_     = "undefined";
+  TString titleY_     = "undefined";
+  TString titleZ_     = "undefined";
   TString titleRatio_ = "undefined";
 
   // -- user-defined info

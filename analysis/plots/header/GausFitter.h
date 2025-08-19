@@ -6,7 +6,8 @@ public:
 
   void Set_FitRange(double fitRangeConst) { fitRangeConst_ = fitRangeConst; }
 
-  void Fit() {
+  void Fit()
+  {
     isFit_ = kTRUE;
 
     double lowerEdge = h_->GetMean() - fitRangeConst_*h_->GetStdDev();
@@ -20,7 +21,7 @@ public:
     TF1 *g = new TF1("g", "gaus", lowerEdge, upperEdge);
     
     g->SetLineColor(kBlack);
-    if( color_ != 0 ) g->SetLineColor(color_); // -- custom color
+    if(color_ != 0) g->SetLineColor(color_); // -- custom color
 
     // double energy_maxEvt = h_->GetBinCenter( h_->GetMaximumBin() );
     // g->SetParameters(1, energy_maxEvt, h_->GetStdDev()); // -- initialize
@@ -33,7 +34,8 @@ public:
     // 피팅 함수 저장
     fitFunc_ = h_->GetFunction("g");
     
-    if(fitFunc_) {
+    if(fitFunc_)
+    {
       chi2_ = fitFunc_->GetChisquare();
       nDOF_ = fitFunc_->GetNDF();
 
@@ -46,32 +48,35 @@ public:
     }
   }
 
-  double Get(TString var) {
-    if( !isFit_ ) Fit();
+  double Get(TString var)
+  {
+    if(!isFit_) Fit();
 
-    if( var == "mu" )    return mu_;
-    if( var == "sigma" ) return sigma_;
-    if( var == "resol" ) return resol_;
+    if(var == "mu")    return mu_;
+    if(var == "sigma") return sigma_;
+    if(var == "resol") return resol_;
     // -- fit quality
-    if( var == "chi2" )     return chi2_;
-    if( var == "nDOF" )     return nDOF_;
-    if( var == "normChi2" ) return normChi2_;
+    if(var == "chi2")     return chi2_;
+    if(var == "nDOF")     return nDOF_;
+    if(var == "normChi2") return normChi2_;
 
     throw std::invalid_argument("var = " + var + " is not supported");
   }
 
-  double GetUnc(TString var) {
-    if( !isFit_ ) Fit();
+  double GetUnc(TString var)
+  {
+    if(!isFit_) Fit();
 
-    if( var == "mu" )    return unc_mu_;
-    if( var == "sigma" ) return unc_sigma_;
-    if( var == "resol" ) return unc_resol_;
+    if(var == "mu")    return unc_mu_;
+    if(var == "sigma") return unc_sigma_;
+    if(var == "resol") return unc_resol_;
 
     throw std::invalid_argument("var = " + var + " is not supported");
   }
 
-  TF1* GetFunction() {
-    if( !isFit_ ) Fit();
+  TF1* GetFunction()
+  {
+    if(!isFit_) Fit();
     return fitFunc_;
   }
 
@@ -94,8 +99,9 @@ private:
   double normChi2_;
 
   // -- abs. unc. on A/B
-  double AbsUnc_AoverB(double A, double unc_A, double B, double unc_B) {
-    if( B == 0 ) return 0; // -- A/B is not defined
+  double AbsUnc_AoverB(double A, double unc_A, double B, double unc_B)
+  {
+    if(B == 0) return 0; // -- A/B is not defined
 
     double relUnc_A = (A == 0) ? 0.0 : unc_A/A;
     double relUnc_B = (B == 0) ? 0.0 : unc_B/B;

@@ -18,10 +18,12 @@ namespace TB2025 {
     12200, 12201, 12203, 12202   // -- M9, T1-4
   };
 
-  std::map<TString, int> GetMap_CalibRun() {
+  std::map<TString, int> GetMap_CalibRun()
+  {
     std::map<TString, int> map_calibRun;
     int nRun = (int)vec_calibRun.size();
-    for(int i_run=0; i_run<nRun; ++i_run) {
+    for(int i_run=0; i_run<nRun; ++i_run)
+    {
       int moduleNum = (int)(i_run/4)+1;
       int towerNum = (i_run%4) + 1;
 

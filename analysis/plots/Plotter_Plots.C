@@ -62,8 +62,8 @@ void Plotter_Plots(string runnumber = "", string beamtype = "", string center = 
 		{
 			// Pion beam merged files 사용
 			TString centerTag = center;
-			if(TB2025::map_piBeamRun_merged.find(centerTag) != TB2025::map_piBeamRun_merged.end()) {
-				for(int energy : TB2025::map_piBeamRun_merged.at(centerTag)) {
+			if(TB2025::map_hadronBeamRun_merged.find(centerTag) != TB2025::map_hadronBeamRun_merged.end()) {
+				for(int energy : TB2025::map_hadronBeamRun_merged.at(centerTag)) {
 					energyList.push_back(to_string(energy));
 				}
 				cout << "Using Pion beam merged files for " << centerTag << ": " << energyList.size() << " energy points" << endl;
@@ -75,7 +75,7 @@ void Plotter_Plots(string runnumber = "", string beamtype = "", string center = 
 		else if(beamtype == "kaon" || beamtype == "proton") 
 		{
 			// Kaon/Proton beam runs (개별 런 번호 사용)
-			for(auto& pair : TB2025::map_kpBeamRun) {
+			for(auto& pair : TB2025::map_hadronBeamRun_merged) {
 				for(int run : pair.second) {
 					runlist.push_back(to_string(run));
 				}
