@@ -64,20 +64,20 @@ void merge_energy_histograms(TString beamType = "em", TString rotation = "", TSt
         energyRunMap_M5["60GeV"]  = {12384, 12385, 12386, 12387, 12388};
         energyRunMap_M5["80GeV"]  = {12374, 12375, 12376, 12377, 12378, 12379, 12380, 12381, 12382, 12383};
         energyRunMap_M5["100GeV"] = {12364, 12365, 12366, 12367, 12368, 12369, 12370, 12371, 12372, 12373};
-        energyRunMap_M5["120GeV"] = {12352, 12353, 12354, 12355, 12356, 12357, 12358, 12359, 12360, 12361, 12363};
+        energyRunMap_M5["120GeV"] = {12352, 12353, 12354, 12355, 12356, 12357, 12358, 12359, 12360, 12361, 12362, 12363};
         std::map<TString, std::vector<int>> energyRunMap_Rot;
         energyRunMap_Rot["20GeV"]  = {12460, 12461};
         energyRunMap_Rot["40GeV"]  = {12457, 12458, 12459};
         energyRunMap_Rot["60GeV"]  = {12452, 12453, 12454, 12455, 12456};
         energyRunMap_Rot["80GeV"]  = {12446, 12447, 12448, 12449, 12450, 12451};
         energyRunMap_Rot["100GeV"] = {12432, 12433, 12434, 12435, 12436, 12437};
-        energyRunMap_Rot["120GeV"] = {12438, 12439, 12440, 12441, 12443, 12444, 12445};
+        energyRunMap_Rot["120GeV"] = {12439, 12440, 12441, 12442, 12443, 12444, 12445};
         std::map<TString, std::vector<int>> energyRunMap_IT;
-        energyRunMap_IT["40GeV"]  = {12522, 12523, 12524, 12525};
-        energyRunMap_IT["60GeV"]  = {12516, 12517, 12518, 12519, 12520};
+        energyRunMap_IT["40GeV"]  = {12522, 12523, 12524, 12525, 12526, 12527, 12528, 12529, 12530, 12531, 12532, 12533, 12534, 12535, 12536};
+        energyRunMap_IT["60GeV"]  = {12516, 12517, 12518, 12519, 12520, 12537, 12538, 12539, 12540, 12541, 12542, 12543, 12544, 12545, 12546, 12547, 12548, 12549, 12550, 12551, 12552, 12553, 12554, 12555, 12556, 12557, 12558, 12559, 12560, 12561, 12562, 12563};
         energyRunMap_IT["80GeV"]  = {12496, 12497, 12498, 12499, 12500, 12501};
-        energyRunMap_IT["100GeV"] = {12510, 12511, 12512, 12513, 12514, 12515};
-        energyRunMap_IT["120GeV"] = {12502, 12503, 12504, 12505, 12506, 12507, 12508, 12509};
+        energyRunMap_IT["100GeV"] = {12510, 12511, 12512, 12513, 12514, 12515, 12564, 12565, 12566, 12567, 12568, 12569, 12570, 12571, 12572, 12573, 12574, 12575, 12576};
+        energyRunMap_IT["120GeV"] = {12503, 12504, 12505, 12506, 12507, 12508, 12509};
         if(rotation == "on")         {energyRunMap = energyRunMap_Rot;}
         else if(interaction == "on") {energyRunMap = energyRunMap_IT;}
         else {std::cout << "Unknown rotation/interaction target for pi beam: " << rotation << std::endl; return;}
@@ -97,16 +97,9 @@ void merge_energy_histograms(TString beamType = "em", TString rotation = "", TSt
         energyRunMap_Rot["60GeV"]  = {12482, 12483, 12484, 12485, 12486};
         energyRunMap_Rot["80GeV"]  = {12476, 12477, 12478, 12479, 12480, 12481};
         energyRunMap_Rot["100GeV"] = {12470, 12471, 12472, 12473, 12474, 12475};
-        energyRunMap_Rot["120GeV"] = {12462, 12463, 12465, 12465, 12466, 12467, 12468, 12469};
-        std::map<TString, std::vector<int>> energyRunMap_IT;
-        energyRunMap_IT["40GeV"]  = {12522, 12523, 12524, 12525};
-        energyRunMap_IT["60GeV"]  = {12516, 12517, 12518, 12519, 12520};
-        energyRunMap_IT["80GeV"]  = {12496, 12497, 12498, 12499, 12500, 12501};
-        energyRunMap_IT["100GeV"] = {12510, 12511, 12512, 12513, 12514, 12515};
-        energyRunMap_IT["120GeV"] = {12502, 12503, 12504, 12505, 12506, 12507, 12508, 12509};
-        if(rotation == "on")         {energyRunMap = energyRunMap_Rot;}
-        else if(interaction == "on") {energyRunMap = energyRunMap_IT;}
-        else if(rotation == "off" && interaction == "off") {energyRunMap = energyRunMap_M5;}
+        energyRunMap_Rot["120GeV"] = {12462, 12463, 12464, 12465, 12466, 12467, 12468, 12469};
+        if(rotation == "on")       {energyRunMap = energyRunMap_Rot;}
+        else if(rotation == "off") {energyRunMap = energyRunMap_M5;}
         else {std::cout << "Unknown rotation/interaction target for proton/kaon beam: " << rotation << std::endl; return;}
     }
     

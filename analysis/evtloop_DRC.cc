@@ -28,19 +28,20 @@ namespace fs = std::filesystem;
 
 int main(int argc, char *argv[])
 {
-    if (argc != 7) {
-        std::cerr << "Usage: " << argv[0] << " <run_number> <max_event> <module> [beam_type] [rotation_on|rotation_off] [interaction_on|interaction_off]" << std::endl;
+    if (argc != 8) {
+        std::cerr << "Usage: " << argv[0] << " <job version> <run_number> <max_event> <module> [beam_type] [rotation_on|rotation_off] [interaction_on|interaction_off]" << std::endl;
         std::cerr << "- module number is center module number: 5 (M5T2) or 4 (M4T2)" << std::endl;
         std::cerr << "- beam_type: em, pi, kaon, proton" << std::endl;
         return -1;
     }
 
-    int fRunNum = std::stoi(argv[1]);
-    int fMaxEvent = std::stoi(argv[2]);
-    int fModule = std::stoi(argv[3]);
-    std::string beam_type = argv[4];
-    std::string rotation_str = argv[5];
-    std::string interaction_str = argv[6];
+    std::string fJobVersion = argv[1];
+    int fRunNum = std::stoi(argv[2]);
+    int fMaxEvent = std::stoi(argv[3]);
+    int fModule = std::stoi(argv[4]);
+    std::string beam_type = argv[5];
+    std::string rotation_str = argv[6];
+    std::string interaction_str = argv[7];
     int fMaxFile = -1;
     
     std::string version = "";
@@ -55,7 +56,7 @@ int main(int argc, char *argv[])
     std::cout << "PS cut [" << CUT_PS.first << ", " << CUT_PS.second << "], ";
     std::cout << "MC cut [" << CUT_MC.first << ", " << CUT_MC.second << "]" << std::endl;
     
-    std::string savepath = Form("./output/%s/Evtloop%s", beam_type.c_str(), version.c_str());
+    std::string savepath = Form("./output/%s/%s/Evtloop%s", fJobVersion.c_str(), beam_type.c_str(), version.c_str());
     system(Form("mkdir -p %s", savepath.c_str()));
         
     // initialize the utility class
@@ -80,9 +81,9 @@ int main(int argc, char *argv[])
     }
     else
     {
-        if(beam_type == "pi")          {f_DWC = TFile::Open((TString)("./output/pi/DWC/DWC_Run_" + std::to_string(fRunNum) + ".root"), "READ");}
-        else if(beam_type == "kaon")   {f_DWC = TFile::Open((TString)("./output/kaon/DWC/DWC_Run_" + std::to_string(fRunNum) + ".root"), "READ");}
-        else if(beam_type == "proton") {f_DWC = TFile::Open((TString)("./output/proton/DWC/DWC_Run_" + std::to_string(fRunNum) + ".root"), "READ");}
+        if(beam_type == "pi")          {f_DWC = TFile::Open((TString)("./output/DWC/pi/DWC_Run_" + std::to_string(fRunNum) + ".root"), "READ");}
+        else if(beam_type == "kaon")   {f_DWC = TFile::Open((TString)("./output/DWC/kp/DWC_Run_" + std::to_string(fRunNum) + ".root"), "READ");}
+        else if(beam_type == "proton") {f_DWC = TFile::Open((TString)("./output/DWC/kp/DWC_Run_" + std::to_string(fRunNum) + ".root"), "READ");}
         else if(beam_type == "em")     {f_DWC = TFile::Open((TString)("./output/em/DWC/DWC_Run_" + std::to_string(fRunNum) + ".root"), "READ");}
         else
         {
