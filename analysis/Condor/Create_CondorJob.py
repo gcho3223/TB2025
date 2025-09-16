@@ -46,37 +46,37 @@ elif particle == "em":
         12278 # 6 GeV
     ]
 elif particle == "pi":
-    if not rotation and not interaction:
+    if not rotation and not interaction: # case 1: normal (witout rotation & interaction target)
         runlist = [
-            12352, 12353, 12354, 12355, 12356, 12357, 12358, 12359, 12360, 12361, 12363, # 120GeV
+            12352, 12353, 12354, 12355, 12356, 12357, 12358, 12359, 12360, 12361, 12362, 12363, # 120GeV
             12364, 12365, 12366, 12367, 12368, 12369, 12370, 12371, 12372, 12373, # 100GeV
             12374, 12375, 12376, 12377, 12378, 12379, 12380, 12381, 12382, 12383, # 80GeV
             12384, 12385, 12386, 12387, 12388, # 60GeV
             12389, 12390, 12391, # 40GeV
             12392, 12393 # 20GeV
         ]
-    elif rotation and not interaction:
+    elif rotation and not interaction: # case 2: rotation
         runlist = [
-            12438, 12439, 12440, 12441, 12443, 12444, 12445, # 120GeV
+            12439, 12440, 12441, 12442, 12443, 12444, 12445, # 120GeV
             12432, 12433, 12434, 12435, 12436, 12437, # 100GeV
             12446, 12447, 12448, 12449, 12450, 12451, # 80GeV
             12452, 12453, 12454, 12455, 12456, # 60GeV
             12457, 12458, 12459, # 40GeV
             12460, 12461 # 20GeV
         ]
-    elif not rotation and interaction:
+    elif not rotation and interaction: # case 3: interaction target
         runlist = [
-            12502, 12503, 12504, 12505, 12506, 12507, 12508, 12509, # 120GeV
-            12510, 12511, 12512, 12513, 12514, 12515, # 100GeV
+            12503, 12504, 12505, 12506, 12507, 12508, 12509, # 120GeV
+            12510, 12511, 12512, 12513, 12514, 12515, 12564, 12565, 12566, 12567, 12568, 12569, 12570, 12571, 12572, 12573, 12574, 12575, 12576, # 100GeV
             12496, 12497, 12498, 12499, 12500, 12501, # 80GeV
-            12516, 12517, 12518, 12519, 12520, # 60GeV
-            12522, 12523, 12524, 12525 # 40GeV
+            12516, 12517, 12518, 12519, 12520, 12537, 12538, 12539, 12540, 12541, 12542, 12543, 12544, 12545, 12546, 12547, 12548, 12549, 12550, 12551, 12552, 12553, 12554, 12555, 12556, 12557, 12558, 12559, 12560, 12561, 12562, 12563, # 60GeV
+            12522, 12523, 12524, 12525, 12526, 12527, 12528, 12529, 12530, 12531, 12532, 12533, 12534, 12535, 12536 # 40GeV
         ]
     else:
         print("Invalid combination of rotation and interaction for pi particle.")
         sys.exit(1)
 elif particle == "kaon" or particle == "proton":
-    if not rotation and not interaction:
+    if not rotation and not interaction: # case 1: normal (witout rotation & interaction target)
         runlist = [
             12401, 12402, 12403, 12404, 12405, 12406, 12407, 12408, # 120GeV
             12410, 12411, 12412, 12413, 12414, 12415, # 100GeV
@@ -85,22 +85,14 @@ elif particle == "kaon" or particle == "proton":
             12427, 12428, 12429,# 40GeV
             12430, 12431 # 20GeV
         ]
-    elif rotation and interaction:
+    elif rotation and not interaction: # case 2: rotation & interaction target
         runlist = [
-            12462, 12463, 12465, 12465, 12466, 12467, 12468, 12469, # 120GeV
+            12462, 12463, 12464, 12465, 12466, 12467, 12468, 12469, # 120GeV
             12470, 12471, 12472, 12473, 12474, 12475, # 100GeV
             12476, 12477, 12478, 12479, 12480, 12481, # 80GeV
             12482, 12483, 12484, 12485, 12486, # 60GeV
             12487, 12488, 12489, # 40GeV
             12490, 12491, 12492 # 20GeV
-        ]
-    elif not rotation and interaction:
-        runlist = [
-            12502, 12503, 12504, 12505, 12506, 12507, 12508, 12509, # 120GeV
-            12510, 12511, 12512, 12513, 12514, 12515, # 100GeV
-            12496, 12497, 12498, 12499, 12500, 12501, # 80GeV
-            12516, 12517, 12518, 12519, 12520, # 60GeV
-            12522, 12523, 12524, 12525 # 40GeV
         ]
     else:
         print("Invalid combination of rotation and interaction for kp particle.")
@@ -114,16 +106,19 @@ else:
 ########################################
 NumEvt = -1
 centermodule = 5
-version = "PA"
+version = "TB2025"
+# Store original program name for command execution
+original_program = program
+
 if rotation:
-    version += "_" + "Rot"
+    program += "_" + "Rot"
 if interaction:
-    version += "_" + "IT"
+    program += "_" + "IT"
 
 
 for sample in range(len(runlist)):
     ### set up condordirectory ###
-    save_dir = f"{particle}/{program}"
+    save_dir = f"{version}/{particle}/{program}"
     sample_dir = f"{version}/{particle}/{program}/{runlist[sample]}"
     os.makedirs(sample_dir, exist_ok=True)
     os.makedirs(f"{sample_dir}/log_condor", exist_ok=True)
@@ -145,14 +140,14 @@ for sample in range(len(runlist)):
         file.write("fileListNum=$((${1}+1)) \n")
         file.write("cd /u/user/gcho/DRC/TB2025/analysis \n")
         file.write("mkdir -p ./output/%s/\n" %(save_dir))
-        if program == "ATS":
+        if original_program == "ATS":
             file.write("./avgTimeStruc %s %s %s" % (runlist[sample], NumEvt, particle))
-        elif program == "DWC":
+        elif original_program == "DWC":
             file.write("./draw_DWC %s %s %s" % (runlist[sample], NumEvt, particle))
-        elif program == "Evtloop":
-            file.write("./evtloop_DRC %s %s %s %s %s %s" % (runlist[sample], NumEvt, centermodule, particle, rotation_str, interaction_str))
+        elif original_program == "Evtloop":
+            file.write("./evtloop_DRC %s %s %s %s %s %s %s" % (version, runlist[sample], NumEvt, centermodule, particle, rotation_str, interaction_str))
         else:
-            print(f"Invalid program: {program}")
+            print(f"Invalid program: {original_program}")
     ### created submit condor job: condor_sub.sub ###
     with open(f"{sample_dir}/condor_sub.sub", "w") as file:
         file.write("universe = vanilla \n")

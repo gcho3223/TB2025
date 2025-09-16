@@ -33,12 +33,12 @@ else
     exit 1
 fi
 
-version="PA"
+version="TB2025"
 if $rotation; then
-    version+="_Rot"
+    program+="_Rot"
 fi
 if $interaction; then
-    version+="_IT"
+    program+="_IT"
 fi
 
 if [ "$particle" == "calib" ]; then
@@ -66,38 +66,38 @@ elif [ "$particle" == "em" ]; then
         12278 # 6 GeV
     )
 elif [ "$particle" == "pi" ]; then
-    if $rotation && ! $interaction; then
+    if ! $rotation && ! $interaction; then # case 1: normal (witout rotation & interaction target)
         runlist=(
-            12438 12439 12440 12441 12443 12444 12445 # 120GeV
-            12432 12433 12434 12435 12436 12437 # 100GeV
-            12446 12447 12448 12449 12450 12451 # 80GeV
-            12452 12453 12454 12455 12456 # 60GeV
-            12457 12458 12459 # 40GeV
-            12460 12461 # 20GeV
-        )
-    elif ! $rotation && $interaction; then
-        runlist=(
-            12502 12503 12504 12505 12506 12507 12508 12509 # 120GeV
-            12510 12511 12512 12513 12514 12515 # 100GeV
-            12496 12497 12498 12499 12500 12501 # 80GeV
-            12516 12517 12518 12519 12520 # 60GeV
-            12522 12523 12524 12525 # 40GeV
-        )
-    elif ! $rotation && ! $interaction; then
-        runlist=(
-            12352 12353 12354 12355 12356 12357 12358 12359 12360 12361 12363 # 120GeV
+            12352 12353 12354 12355 12356 12357 12358 12359 12360 12361 12362 12363 # 120GeV
             12364 12365 12366 12367 12368 12369 12370 12371 12372 12373 # 100GeV
             12374 12375 12376 12377 12378 12379 12380 12381 12382 12383 # 80GeV
             12384 12385 12386 12387 12388 # 60GeV
             12389 12390 12391 # 40GeV
             12392 12393 # 20GeV
         )
+    elif $rotation && ! $interaction; then # case 2: rotation
+        runlist=(
+            12439 12440 12441 12442 12443 12444 12445 # 120GeV
+            12432 12433 12434 12435 12436 12437 # 100GeV
+            12446 12447 12448 12449 12450 12451 # 80GeV
+            12452 12453 12454 12455 12456 # 60GeV
+            12457 12458 12459 # 40GeV
+            12460 12461 # 20GeV
+        )
+    elif ! $rotation && $interaction; then # case 3: interaction target
+        runlist=(
+            12503 12504 12505 12506 12507 12508 12509 # 120GeV
+            12510 12511 12512 12513 12514 12515 12564 12565 12566 12567 12568 12569 12570 12571 12572 12573 12574 12575 12576 # 100GeV
+            12496 12497 12498 12499 12500 12501 # 80GeV
+            12516 12517 12518 12519 12520 12537 12538 12539 12540 12541 12542 12543 12544 12545 12546 12547 12548 12549 12550 12551 12552 12553 12554 12555 12556 12557 12558 12559 12560 12561 12562 12563 # 60GeV
+            12522 12523 12524 12525 12526 12527 12528 12529 12530 12531 12532 12533 12534 12535 12536 # 40GeV
+        )
     else
         echo "Invalid combination of rotation and interaction for pi particle."
         exit 1
     fi
 elif [ "$particle" == "kaon" ] || [ "$particle" == "proton" ]; then
-    if ! $rotation && ! $interaction; then
+    if ! $rotation && ! $interaction; then # case 1: normal (witout rotation & interaction target)
         runlist=(
             12401 12402 12403 12404 12405 12406 12407 12408 # 120GeV
             12410 12411 12412 12413 12414 12415 # 100GeV
@@ -106,22 +106,14 @@ elif [ "$particle" == "kaon" ] || [ "$particle" == "proton" ]; then
             12427 12428 12429 # 40GeV
             12430 12431 # 20GeV
         )
-    elif $rotation && $interaction; then
+    elif $rotation && ! $interaction; then # case 2: rotation & interaction target
         runlist=(
-            12462 12463 12465 12465 12466 12467 12468 12469 # 120GeV
+            12462 12463 12464 12465 12466 12467 12468 12469 # 120GeV
             12470 12471 12472 12473 12474 12475 # 100GeV
             12476 12477 12478 12479 12480 12481 # 80GeV
             12482 12483 12484 12485 12486 # 60GeV
             12487 12488 12489 # 40GeV
             12490 12491 12492 # 20GeV
-        )
-    elif ! $rotation && $interaction; then
-        runlist=(
-            12502 12503 12504 12505 12506 12507 12508 12509 # 120GeV
-            12510 12511 12512 12513 12514 12515 # 100GeV
-            12496 12497 12498 12499 12500 12501 # 80GeV
-            12516 12517 12518 12519 12520 # 60GeV
-            12522 12523 12524 12525 # 40GeV
         )
     else
         echo "Invalid combination of rotation and interaction for kp particle."
